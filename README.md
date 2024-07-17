@@ -27,7 +27,7 @@ For these reasons, I created a NLP parser for date-time processing. its kept sim
 The tool is developed in Java so should work in most platforms. I tested in Windows 11 though. 
 I developed using JDK 21, but it should work in JDKs 8 or more
 # What twi is
-Its a lightweight tool that can be used to convert date times. The code is oriented towards simplicity over performance. feel free to review the code, modify as you wish for your needs.
+Its a lightweight tool that can be used to convert date times. The code is oriented towards simplicity over performance. Feel free to review the code, modify as you wish for your needs.
 # What twi is NOT
 - This software is provided AS IS without any warranty.
 - It is not tested for Production use.
