@@ -25,7 +25,7 @@ import com.vigneshbala.twi.util.ReferenceDataUtil;
 /**
  * A Custom NLP Parser for date and time strings written in Java. Currently only
  * English is supported and only a select grammars are supported for date and
- * time conversion CLI 
+ * time conversion CLI
  * 
  * (c) 2024 Vignesh Balasubramanian
  * 
@@ -33,12 +33,21 @@ import com.vigneshbala.twi.util.ReferenceDataUtil;
  */
 public class DateTimeNLPParser {
 
+	private static final String DAY_BEFORE_YESTERDAY = "day before yesterday";
+	private static final String DAY_AFTER_TOMORROW = "day after tomorrow";
+	private static final String YESTERDAY = "yesterday";
+	private static final String TOMORROW = "tomorrow";
+	private static final String AFTER = "after";
+	private static final String BEFORE = "before";
+	private static final String DAY = "day";
 	private static final int TOTAL_WEEKDAYS = 7;
 	private static final int TOTAL_MONTHS = 12;
 	private static final String CONTAIN_MORE_DATE_TIME = "String contain more date/time.. currently only one is supported..";
 
-	private static List<WEEKDAYS> weekDaysInInput = new ArrayList<WEEKDAYS>();
-	private static List<MONTHS> monthsInInput = new ArrayList<MONTHS>();
+	private static Map<String, Integer> weekDaysInInput = new HashMap<>();
+	private static Map<String, Integer> monthsInInput = new HashMap<>();
+	private static Map<String, Integer> relativeDaysInInput = new HashMap<>();
+	private static Map<String, Integer> relativeTimesInInput = new HashMap<>();
 	private static Logger log = LoggerFactory.getLogger(DateTimeNLPParser.class);
 	private static final List<DateTimeZone> availableTimeZones = DateTimeZone.getAvailableIDs().stream()
 			.map(DateTimeZone::forID).collect(Collectors.toList());
@@ -47,7 +56,7 @@ public class DateTimeNLPParser {
 	private static CountryRecord countryRecord = null;
 	private static DateTimeZone timeZone = null;
 
-	private static final List<String> SPECIFIERS = Arrays.asList("standard", "std", "time", "timezone", "zone", "day",
+	private static final List<String> SPECIFIERS = Arrays.asList("standard", "std", "time", "timezone", "zone", DAY,
 			"light", "daylight", "savings", "rd", "st", "nd");
 
 	private static Map<String, Integer> RELATIVE_DAYS = new HashMap<>();
@@ -60,49 +69,50 @@ public class DateTimeNLPParser {
 	private void populateRelativeDays() {
 		RELATIVE_DAYS.put("today", 0);
 		RELATIVE_DAYS.put("now", 0);
-		RELATIVE_DAYS.put("tomorrow", 1);
-		RELATIVE_DAYS.put("yesterday", -1);
-		RELATIVE_DAYS.put("day after tomorrow", 2);
-		RELATIVE_DAYS.put("day before yesterday", -2);
+		RELATIVE_DAYS.put(TOMORROW, 1);
+		RELATIVE_DAYS.put(YESTERDAY, -1);
+		RELATIVE_DAYS.put(DAY_AFTER_TOMORROW, 2);
+		RELATIVE_DAYS.put(DAY_BEFORE_YESTERDAY, -2);
 	}
 
 	public static ParserResult parse(String input, Clock clock) {
 		ParserResult result = new ParserResult();
-		DateTime baseTime = new DateTime(clock.instant());
+		DateTime baseTime = new DateTime(clock.millis());
 		result.setFromDateTime(baseTime);
 		boolean day = false;
 		boolean before = false;
-		boolean yesterday = false;
-		boolean tomorrow = false;
 		boolean after = false;
 		try {
 			input = extractandCleanInput(input);
 			List<String> tokens = Arrays.asList(StringUtils.splitByWholeSeparator(input, StringUtils.SPACE));
 			for (String token : tokens) {
-				if (WEEKDAYS.valueOf(token) != null) {
-					weekDaysInInput.add(WEEKDAYS.valueOf(token));
+				if (DateTimeUnits.getInstance().isWeekDay(token)) {
+					weekDaysInInput.put(token, DateTimeUnits.getInstance().getWeekDay(token));
 				}
-				if (MONTHS.valueOf(token) != null) {
-					monthsInInput.add(MONTHS.valueOf(token));
+				if (DateTimeUnits.getInstance().isMonth(token)) {
+					monthsInInput.put(token, DateTimeUnits.getInstance().getWeekDay(token));
 				}
 				if (RELATIVE_DAYS.containsKey(token)) {
-					if (token.equals("day")) {
+					if (token.equals(DAY)) {
 						day = true;
-					} else if (token.equals("before")) {
+					} else if (token.equals(BEFORE)) {
 						before = true;
-					} else if (token.equals("after")) {
+					} else if (token.equals(AFTER)) {
 						after = true;
-					} else if (token.equals("tomorrow")) {
+					} else if (token.equals(TOMORROW)) {
 						if (day && after) {
-
+							relativeDaysInInput.put(DAY_AFTER_TOMORROW,
+									DateTimeUnits.getInstance().getRelativeDay(DAY_AFTER_TOMORROW));
 						} else {
+							relativeDaysInInput.put(TOMORROW, DateTimeUnits.getInstance().getRelativeDay(TOMORROW));
 
 						}
-					} else if (token.equals("yesterday")) {
+					} else if (token.equals(YESTERDAY)) {
 						if (day && before) {
-
+							relativeDaysInInput.put(DAY_BEFORE_YESTERDAY,
+									DateTimeUnits.getInstance().getRelativeDay(DAY_BEFORE_YESTERDAY));
 						} else {
-
+							relativeDaysInInput.put(YESTERDAY, DateTimeUnits.getInstance().getRelativeDay(YESTERDAY));
 						}
 					}
 
@@ -115,7 +125,7 @@ public class DateTimeNLPParser {
 
 			if (weekDaysInInput.size() > 0) {
 
-				int deltaDays = getDeltaDays(baseTime, weekDaysInInput.get(0));
+				int deltaDays = getDeltaDays(baseTime, weekDaysInInput);
 				DateTime newTime = baseTime.plusDays(deltaDays);
 				result.put(weekDaysInInput.get(0).getKey() + " : ", newTime);
 
@@ -128,7 +138,7 @@ public class DateTimeNLPParser {
 			e.printStackTrace();
 		}
 
-		return null;
+		return result;
 	}
 
 	/**
@@ -280,7 +290,7 @@ public class DateTimeNLPParser {
 		System.out.println(newTime);
 	}
 
-	private static int getDeltaDays(DateTime baseTime, WEEKDAYS wkDay) {
+	private static int getDeltaDays(DateTime baseTime, Map<String, Integer> weekDaysInInput) {
 		int deltaDays = wkDay.getValue() - baseTime.getDayOfWeek();
 		deltaDays = deltaDays >= 0 ? deltaDays : (TOTAL_WEEKDAYS + deltaDays);
 		return deltaDays;
