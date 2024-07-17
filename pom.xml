@@ -1,0 +1,70 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.vigneshbala</groupId>
+	<artifactId>twi</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>twi</name>
+	<description>A Command Line utility to quickly convert the natural language
+		time from one zone to another. The name twi is Yoda speak for Time What
+		is?</description>
+	<properties>
+		<com.zoho.hawking.version>0.1.8</com.zoho.hawking.version>
+		<info.picocli.version>4.7.6</info.picocli.version>
+		<org.slf4j.jul-to-slf4j.version>2.1.0-alpha1</org.slf4j.jul-to-slf4j.version>
+		<ch.qos.logback.logback-classic.version>1.5.6</ch.qos.logback.logback-classic.version>
+		<com.github.cliftonlabs.json-simple.version>4.0.1</com.github.cliftonlabs.json-simple.version>
+		<joda-time.joda-time.version>2.12.7</joda-time.joda-time.version>
+	</properties>
+	<dependencies>
+		<!-- https://mvnrepository.com/artifact/joda-time/joda-time -->
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>${joda-time.joda-time.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.14.0</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>info.picocli</groupId>
+			<artifactId>picocli</artifactId>
+			<version>${info.picocli.version}</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.slf4j/jul-to-slf4j -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jul-to-slf4j</artifactId>
+			<version>${org.slf4j.jul-to-slf4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>${ch.qos.logback.logback-classic.version}</version>
+		</dependency>
+		<!--
+		https://mvnrepository.com/artifact/com.github.cliftonlabs/json-simple -->
+		<dependency>
+			<groupId>com.github.cliftonlabs</groupId>
+			<artifactId>json-simple</artifactId>
+			<version>${com.github.cliftonlabs.json-simple.version}</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.testng/testng -->
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>7.10.2</version>
+			<scope>test</scope>
+		</dependency>
+
+
+	</dependencies>
+</project>
