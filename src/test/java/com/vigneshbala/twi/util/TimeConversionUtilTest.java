@@ -74,25 +74,25 @@ public class TimeConversionUtilTest {
 			Assert.assertEquals(
 					TimeConversionUtil.convertDateTime("day after tomorrow", DD_MM_YYYY, JUL_17_2024, null, null, null),
 					"19-07-2024");
-
+			
 			Assert.assertEquals(
 					TimeConversionUtil.convertDateTime("last Monday", DD_MM_YYYY, JUL_17_2024, null, null, null),
-					"08-07-2024");
-//
-//			Assert.assertEquals(
-//					TimeConversionUtil.convertDateTime("this Monday", DD_MM_YYYY, JUL_17_2024, null, null, null),
-//					"22-07-2024");
-//			Assert.assertEquals(
-//					TimeConversionUtil.convertDateTime("coming Monday", DD_MM_YYYY, JUL_17_2024, null, null, null),
-//					"22-07-2024");
-//
-//			Assert.assertEquals(
-//					TimeConversionUtil.convertDateTime("gone Monday", DD_MM_YYYY, JUL_17_2024, null, null, null),
-//					"15-07-2024");
-//
-//			Assert.assertEquals(
-//					TimeConversionUtil.convertDateTime("this past Monday", DD_MM_YYYY, JUL_17_2024, null, null, null),
-//					"15-07-2024");
+					"15-07-2024");
+
+			Assert.assertEquals(
+					TimeConversionUtil.convertDateTime("this Monday", DD_MM_YYYY, JUL_17_2024, null, null, null),
+					"22-07-2024");
+			Assert.assertEquals(
+					TimeConversionUtil.convertDateTime("coming Monday", DD_MM_YYYY, JUL_17_2024, null, null, null),
+					"22-07-2024");
+
+			Assert.assertEquals(
+					TimeConversionUtil.convertDateTime("past Monday", DD_MM_YYYY, JUL_17_2024, null, null, null),
+					"15-07-2024");
+
+			Assert.assertEquals(
+					TimeConversionUtil.convertDateTime("this past Monday", DD_MM_YYYY, JUL_17_2024, null, null, null),
+					"15-07-2024");
 
 		} catch (Exception e) {
 			e.printStackTrace();

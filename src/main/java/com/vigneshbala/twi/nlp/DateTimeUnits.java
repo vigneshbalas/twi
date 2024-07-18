@@ -20,13 +20,6 @@ public class DateTimeUnits {
 	}
 
 	private DateTimeUnits() {
-		weekdayMap.put("sunday", 0);
-		weekdayMap.put("monday", 1);
-		weekdayMap.put("tuesday", 2);
-		weekdayMap.put("wednesday", 3);
-		weekdayMap.put("thursday", 4);
-		weekdayMap.put("friday", 5);
-		weekdayMap.put("saturday", 6);
 		weekdayMap.put("sun", 0);
 		weekdayMap.put("mon", 1);
 		weekdayMap.put("tue", 2);
@@ -35,18 +28,7 @@ public class DateTimeUnits {
 		weekdayMap.put("fri", 5);
 		weekdayMap.put("sat", 6);
 
-		monthsMap.put("january", 0);
-		monthsMap.put("february", 1);
-		monthsMap.put("march", 2);
-		monthsMap.put("april", 3);
-		monthsMap.put("may", 4);
-		monthsMap.put("june", 6);
-		monthsMap.put("july", 7);
-		monthsMap.put("august", 8);
-		monthsMap.put("september", 9);
-		monthsMap.put("october", 10);
-		monthsMap.put("november", 11);
-		monthsMap.put("december", 12);
+		
 		monthsMap.put("jan", 0);
 		monthsMap.put("feb", 1);
 		monthsMap.put("mar", 2);

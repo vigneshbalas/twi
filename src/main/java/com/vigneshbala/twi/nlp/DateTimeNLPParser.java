@@ -1,12 +1,12 @@
 package com.vigneshbala.twi.nlp;
 
 import java.time.Clock;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.RegExUtils;
@@ -32,11 +32,14 @@ import com.vigneshbala.twi.util.ReferenceDataUtil;
  */
 public class DateTimeNLPParser {
 
+	private static final String TOMORROW = "tomorrow";
+	private static final String YESTERDAY = "yesterday";
+	private static Logger log = LoggerFactory.getLogger(DateTimeNLPParser.class);
 	private static final int TOTAL_WEEKDAYS = 7;
 	private static final int TOTAL_MONTHS = 12;
 	private static final String CONTAIN_MORE_DATE_TIME = "String contain more date/time.. currently only one is supported..";
+	private static final String DOES_NOT_CONTAIN_ANY_DATES_OR_TIME = "String does not contain any dates or time..";
 
-	private static Logger log = LoggerFactory.getLogger(DateTimeNLPParser.class);
 	private static final List<DateTimeZone> availableTimeZones = DateTimeZone.getAvailableIDs().stream()
 			.map(DateTimeZone::forID).collect(Collectors.toList());
 
@@ -52,23 +55,23 @@ public class DateTimeNLPParser {
 		DateTime baseTime = new DateTime(clock.millis());
 		result.setFromDateTime(baseTime);
 		boolean isMatchedOnce = false;
-		boolean last = false;
+		boolean yesterday = false;
+		boolean tomorrow = false;
+		boolean past = false;
 
 		try {
 			input = extractandCleanInput(input);
-			Matcher matcher = RegExUtils.dotAllMatcher(input, "last");
-			if (matcher.matches()) {
-				last = true;
+			if (hasMatch("last", input) || hasMatch("past", input)) {
+				past = true;
 			}
 
 			for (String key : DateTimeUnits.getInstance().getWeekdayMap().keySet()) {
-				matcher = RegExUtils.dotAllMatcher(input, key);
-				if (matcher.matches()) {
+				if (hasMatch(key, input)) {
 					if (isMatchedOnce) {
 						throw new Exception(CONTAIN_MORE_DATE_TIME);
 					} else {
 						isMatchedOnce = true;
-						int deltaDays = getDeltaDays(baseTime, DateTimeUnits.getInstance().getWeekDay(key), last);
+						int deltaDays = getDeltaDays(baseTime, DateTimeUnits.getInstance().getWeekDay(key), past);
 						DateTime newTime = baseTime.plusDays(deltaDays);
 						result.putToDateTime(key + ":", newTime);
 					}
@@ -78,8 +81,7 @@ public class DateTimeNLPParser {
 			}
 
 			for (String key : DateTimeUnits.getInstance().getMonthsMap().keySet()) {
-				matcher = RegExUtils.dotAllMatcher(input, key);
-				if (matcher.matches()) {
+				if (hasMatch(key, input)) {
 					if (isMatchedOnce) {
 						throw new Exception(CONTAIN_MORE_DATE_TIME);
 					} else {
@@ -92,27 +94,36 @@ public class DateTimeNLPParser {
 				}
 
 			}
-
+			String matchedKey = null;
 			for (String key : DateTimeUnits.getInstance().getRelativeDaysMap().keySet()) {
-				matcher = RegExUtils.dotAllMatcher(input, key);
-				if (matcher.matches()) {
-					if (isMatchedOnce) {
+
+				if (hasMatch(key, input)) {
+					if (isMatchedOnce && !yesterday && !tomorrow) {
 						throw new Exception(CONTAIN_MORE_DATE_TIME);
 					} else {
-						isMatchedOnce = true;
-						int deltaDays = DateTimeUnits.getInstance().getRelativeDay(key);
-						DateTime newTime = baseTime.plusDays(deltaDays);
-						result.putToDateTime(key + ":", newTime);
+						if (key.equals(YESTERDAY)) {
+							yesterday = true;
+							isMatchedOnce = true;
+							matchedKey = YESTERDAY;
+						} else if (key.equals(TOMORROW)) {
+							tomorrow = true;
+							isMatchedOnce = true;
+							matchedKey = TOMORROW;
+						}
+						matchedKey = key;
 					}
 
 				}
 
 			}
+			if (matchedKey != null) {
+				int deltaDays = DateTimeUnits.getInstance().getRelativeDay(matchedKey);
+				DateTime newTime = baseTime.plusDays(deltaDays);
+				result.putToDateTime(matchedKey + ":", newTime);
+			}
 
 			for (String key : DateTimeUnits.getInstance().getRelativeHoursMap().keySet()) {
-
-				matcher = RegExUtils.dotAllMatcher(input, key);
-				if (matcher.matches()) {
+				if (hasMatch(key, input)) {
 					if (isMatchedOnce) {
 						throw new Exception(CONTAIN_MORE_DATE_TIME);
 					} else {
@@ -125,6 +136,9 @@ public class DateTimeNLPParser {
 				}
 
 			}
+			if (!isMatchedOnce) {
+				throw new Exception(DOES_NOT_CONTAIN_ANY_DATES_OR_TIME);
+			}
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw e;
@@ -134,9 +148,8 @@ public class DateTimeNLPParser {
 	}
 
 	/**
-	 * Hawking Parser is not recognizing certain time zones, so extracting the time
-	 * zones from the input string, so that the time zone conversions can be handled
-	 * separately.
+	 * Extracting the time zones from the input string, so that the time zone
+	 * conversions can be handled separately.
 	 * 
 	 * @param input input string
 	 * @throws Exception Exceptions while parsing and processing the String
@@ -288,4 +301,13 @@ public class DateTimeNLPParser {
 		return deltaMonths;
 	}
 
+	public boolean hasMatch(String regex, String text) {
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(text);
+		boolean match = false;
+		while (matcher.find()) {
+			match = true;
+		}
+		return match;
+	}
 }
