@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.vigneshbala.twi.model.CountryRecord;
 import com.vigneshbala.twi.model.ParserResult;
 import com.vigneshbala.twi.nlp.DateTimeNLPParser;
+
 /**
  * (c) 2024 Vignesh Balasubramanian
  * 
@@ -43,7 +44,8 @@ public class TimeConversionUtil {
 	public static String convertDateTime(String input, String format, Clock clock, String[] timeZones,
 			String[] countries, String[] offsets) throws Exception {
 		StringBuilder result = new StringBuilder();
-		ParserResult output = DateTimeNLPParser.parse(input, clock);
+		DateTimeNLPParser parser = new DateTimeNLPParser();
+		ParserResult output = parser.parse(input, clock, format);
 		if (timeZones != null) {
 			result.append(StringUtils.join(convertTimeZones(format, timeZones, output), ","));
 		}
@@ -57,11 +59,7 @@ public class TimeConversionUtil {
 
 		}
 
-		if (offsets == null && countries == null && timeZones == null) {
-			result.append(output.getToDateTime().get("Output").toString(format));
-		}
-
-		return result.toString();
+		return output.getPrettyPrintedResult();
 	}
 
 	private static String convertCountries(String format, String[] countries, ParserResult parserResult) {
@@ -93,8 +91,8 @@ public class TimeConversionUtil {
 			sb.append(offset);
 			sb.append(" ");
 			sb.append(COLON);
-			sb.append(parserResult.getToDateTime().get(offset).toDateTime(DateTimeZone.UTC).toDateTime(getTimeZoneForOffset(offset))
-					.toString(format));
+			sb.append(parserResult.getToDateTime().get(offset).toDateTime(DateTimeZone.UTC)
+					.toDateTime(getTimeZoneForOffset(offset)).toString(format));
 			result.add(sb.toString());
 		}
 		return result;

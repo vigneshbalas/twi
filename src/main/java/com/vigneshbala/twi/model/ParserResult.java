@@ -14,6 +14,7 @@ import org.joda.time.DateTimeZone;
  */
 public class ParserResult {
 	List<DateTimeZone> timezones;
+	String outputformat;
 	List<CountryRecord> countries;
 	List<String> offsets;
 	Map<String, DateTime> toDateTime = new HashMap<String, DateTime>();
@@ -22,11 +23,15 @@ public class ParserResult {
 	boolean isDatePresent;
 	boolean isTimePresent;
 
+	public ParserResult(String outputformat) {
+		this.outputformat = outputformat;
+	}
+
 	public Map<String, DateTime> getToDateTime() {
 		return toDateTime;
 	}
 
-	public DateTime put(String key, DateTime value) {
+	public DateTime putToDateTime(String key, DateTime value) {
 		return toDateTime.put(key, value);
 	}
 
@@ -80,6 +85,15 @@ public class ParserResult {
 
 	public void setOffsets(List<String> offsets) {
 		this.offsets = offsets;
+	}
+
+	public String getPrettyPrintedResult() {
+		StringBuilder sb = new StringBuilder();
+		for (String key : toDateTime.keySet()) {
+			sb.append(toDateTime.get(key).toString(outputformat));
+		}
+		return sb.toString();
+
 	}
 
 }

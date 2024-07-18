@@ -3,11 +3,10 @@ package com.vigneshbala.twi.nlp;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.RegExUtils;
@@ -33,21 +32,10 @@ import com.vigneshbala.twi.util.ReferenceDataUtil;
  */
 public class DateTimeNLPParser {
 
-	private static final String DAY_BEFORE_YESTERDAY = "day before yesterday";
-	private static final String DAY_AFTER_TOMORROW = "day after tomorrow";
-	private static final String YESTERDAY = "yesterday";
-	private static final String TOMORROW = "tomorrow";
-	private static final String AFTER = "after";
-	private static final String BEFORE = "before";
-	private static final String DAY = "day";
 	private static final int TOTAL_WEEKDAYS = 7;
 	private static final int TOTAL_MONTHS = 12;
 	private static final String CONTAIN_MORE_DATE_TIME = "String contain more date/time.. currently only one is supported..";
 
-	private static Map<String, Integer> weekDaysInInput = new HashMap<>();
-	private static Map<String, Integer> monthsInInput = new HashMap<>();
-	private static Map<String, Integer> relativeDaysInInput = new HashMap<>();
-	private static Map<String, Integer> relativeTimesInInput = new HashMap<>();
 	private static Logger log = LoggerFactory.getLogger(DateTimeNLPParser.class);
 	private static final List<DateTimeZone> availableTimeZones = DateTimeZone.getAvailableIDs().stream()
 			.map(DateTimeZone::forID).collect(Collectors.toList());
@@ -56,86 +44,90 @@ public class DateTimeNLPParser {
 	private static CountryRecord countryRecord = null;
 	private static DateTimeZone timeZone = null;
 
-	private static final List<String> SPECIFIERS = Arrays.asList("standard", "std", "time", "timezone", "zone", DAY,
+	private static final List<String> SPECIFIERS = Arrays.asList("standard", "std", "time", "timezone", "zone", "day",
 			"light", "daylight", "savings", "rd", "st", "nd");
 
-	private static Map<String, Integer> RELATIVE_DAYS = new HashMap<>();
-
-	public DateTimeNLPParser() {
-		populateRelativeDays();
-
-	}
-
-	private void populateRelativeDays() {
-		RELATIVE_DAYS.put("today", 0);
-		RELATIVE_DAYS.put("now", 0);
-		RELATIVE_DAYS.put(TOMORROW, 1);
-		RELATIVE_DAYS.put(YESTERDAY, -1);
-		RELATIVE_DAYS.put(DAY_AFTER_TOMORROW, 2);
-		RELATIVE_DAYS.put(DAY_BEFORE_YESTERDAY, -2);
-	}
-
-	public static ParserResult parse(String input, Clock clock) {
-		ParserResult result = new ParserResult();
+	public ParserResult parse(String input, Clock clock, String format) throws Exception {
+		ParserResult result = new ParserResult(format);
 		DateTime baseTime = new DateTime(clock.millis());
 		result.setFromDateTime(baseTime);
-		boolean day = false;
-		boolean before = false;
-		boolean after = false;
+		boolean isMatchedOnce = false;
+		boolean last = false;
+
 		try {
 			input = extractandCleanInput(input);
-			List<String> tokens = Arrays.asList(StringUtils.splitByWholeSeparator(input, StringUtils.SPACE));
-			for (String token : tokens) {
-				if (DateTimeUnits.getInstance().isWeekDay(token)) {
-					weekDaysInInput.put(token, DateTimeUnits.getInstance().getWeekDay(token));
-				}
-				if (DateTimeUnits.getInstance().isMonth(token)) {
-					monthsInInput.put(token, DateTimeUnits.getInstance().getWeekDay(token));
-				}
-				if (RELATIVE_DAYS.containsKey(token)) {
-					if (token.equals(DAY)) {
-						day = true;
-					} else if (token.equals(BEFORE)) {
-						before = true;
-					} else if (token.equals(AFTER)) {
-						after = true;
-					} else if (token.equals(TOMORROW)) {
-						if (day && after) {
-							relativeDaysInInput.put(DAY_AFTER_TOMORROW,
-									DateTimeUnits.getInstance().getRelativeDay(DAY_AFTER_TOMORROW));
-						} else {
-							relativeDaysInInput.put(TOMORROW, DateTimeUnits.getInstance().getRelativeDay(TOMORROW));
+			Matcher matcher = RegExUtils.dotAllMatcher(input, "last");
+			if (matcher.matches()) {
+				last = true;
+			}
 
-						}
-					} else if (token.equals(YESTERDAY)) {
-						if (day && before) {
-							relativeDaysInInput.put(DAY_BEFORE_YESTERDAY,
-									DateTimeUnits.getInstance().getRelativeDay(DAY_BEFORE_YESTERDAY));
-						} else {
-							relativeDaysInInput.put(YESTERDAY, DateTimeUnits.getInstance().getRelativeDay(YESTERDAY));
-						}
+			for (String key : DateTimeUnits.getInstance().getWeekdayMap().keySet()) {
+				matcher = RegExUtils.dotAllMatcher(input, key);
+				if (matcher.matches()) {
+					if (isMatchedOnce) {
+						throw new Exception(CONTAIN_MORE_DATE_TIME);
+					} else {
+						isMatchedOnce = true;
+						int deltaDays = getDeltaDays(baseTime, DateTimeUnits.getInstance().getWeekDay(key), last);
+						DateTime newTime = baseTime.plusDays(deltaDays);
+						result.putToDateTime(key + ":", newTime);
 					}
 
 				}
-			}
-			if (weekDaysInInput.size() > 1 || monthsInInput.size() > 1
-					|| (weekDaysInInput.size() == 1 && monthsInInput.size() == 1)) {
-				throw new Exception(CONTAIN_MORE_DATE_TIME);
+
 			}
 
-			if (weekDaysInInput.size() > 0) {
+			for (String key : DateTimeUnits.getInstance().getMonthsMap().keySet()) {
+				matcher = RegExUtils.dotAllMatcher(input, key);
+				if (matcher.matches()) {
+					if (isMatchedOnce) {
+						throw new Exception(CONTAIN_MORE_DATE_TIME);
+					} else {
+						isMatchedOnce = true;
+						int deltaDays = getDeltaMonths(baseTime, DateTimeUnits.getInstance().getMonth(key));
+						DateTime newTime = baseTime.plusDays(deltaDays);
+						result.putToDateTime(key + ":", newTime);
+					}
 
-				int deltaDays = getDeltaDays(baseTime, weekDaysInInput);
-				DateTime newTime = baseTime.plusDays(deltaDays);
-				result.put(weekDaysInInput.get(0).getKey() + " : ", newTime);
+				}
 
-			} else if (monthsInInput.size() > 0) {
-				int deltaMonths = getDeltaMonths(baseTime, monthsInInput.get(0));
-				DateTime newTime = baseTime.plusMonths(deltaMonths);
-				result.put(monthsInInput.get(0).getKey() + " : ", newTime);
+			}
+
+			for (String key : DateTimeUnits.getInstance().getRelativeDaysMap().keySet()) {
+				matcher = RegExUtils.dotAllMatcher(input, key);
+				if (matcher.matches()) {
+					if (isMatchedOnce) {
+						throw new Exception(CONTAIN_MORE_DATE_TIME);
+					} else {
+						isMatchedOnce = true;
+						int deltaDays = DateTimeUnits.getInstance().getRelativeDay(key);
+						DateTime newTime = baseTime.plusDays(deltaDays);
+						result.putToDateTime(key + ":", newTime);
+					}
+
+				}
+
+			}
+
+			for (String key : DateTimeUnits.getInstance().getRelativeHoursMap().keySet()) {
+
+				matcher = RegExUtils.dotAllMatcher(input, key);
+				if (matcher.matches()) {
+					if (isMatchedOnce) {
+						throw new Exception(CONTAIN_MORE_DATE_TIME);
+					} else {
+						isMatchedOnce = true;
+						int deltaHours = DateTimeUnits.getInstance().getRelativeHour(key);
+						DateTime newTime = baseTime.plusHours(deltaHours);
+						result.putToDateTime(key + ":", newTime);
+					}
+
+				}
+
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
+			throw e;
 		}
 
 		return result;
@@ -281,23 +273,17 @@ public class DateTimeNLPParser {
 				|| tokens.contains(zone.getName(DateTimeUtils.currentTimeMillis())) || tokens.contains(zone.getID());
 	}
 
-	public static void main(String[] args) {
-		DateTime baseTime = new DateTime();
-		System.out.println(baseTime);
-		MONTHS months = MONTHS.AUG;
-		int deltaMonths = getDeltaMonths(baseTime, months);
-		DateTime newTime = baseTime.plusMonths(deltaMonths);
-		System.out.println(newTime);
-	}
+	private static int getDeltaDays(DateTime baseTime, int deltaDays, boolean isPast) {
+		deltaDays = deltaDays - baseTime.getDayOfWeek();
+		if (!isPast) {
+			deltaDays = deltaDays >= 0 ? deltaDays : (TOTAL_WEEKDAYS + deltaDays);
+		}
 
-	private static int getDeltaDays(DateTime baseTime, Map<String, Integer> weekDaysInInput) {
-		int deltaDays = wkDay.getValue() - baseTime.getDayOfWeek();
-		deltaDays = deltaDays >= 0 ? deltaDays : (TOTAL_WEEKDAYS + deltaDays);
 		return deltaDays;
 	}
 
-	private static int getDeltaMonths(DateTime baseTime, MONTHS month) {
-		int deltaMonths = month.getValue() - baseTime.getMonthOfYear();
+	private static int getDeltaMonths(DateTime baseTime, int deltaMonths) {
+		deltaMonths = deltaMonths - baseTime.getMonthOfYear();
 		deltaMonths = deltaMonths >= 0 ? deltaMonths : (TOTAL_MONTHS + deltaMonths);
 		return deltaMonths;
 	}

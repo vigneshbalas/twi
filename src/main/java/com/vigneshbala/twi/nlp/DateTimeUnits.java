@@ -62,7 +62,7 @@ public class DateTimeUnits {
 		relativeDaysMap.put("today", 0);
 		relativeDaysMap.put("yesterday", -1);
 		relativeDaysMap.put("tomorrow", 1);
-		relativeDaysMap.put("day_after_tomorrow", 2);
+		relativeDaysMap.put("day after tomorrow", 2);
 		relativeDaysMap.put("day before yesterday", -2);
 		relativeDaysMap.put("now", 0);
 		relativeDaysMap.put("days from today", 1);
@@ -99,14 +99,32 @@ public class DateTimeUnits {
 	}
 
 	public Integer getMonth(String month) {
-		return relativeDaysMap.get(month);
+		return monthsMap.get(month);
 	}
 
 	public Integer getRelativeDay(String relativeDay) {
-		return relativeHoursMap.get(relativeDay);
+		return relativeDaysMap.get(relativeDay);
 	}
 
 	public Integer getRelativeHour(String relativeHour) {
-		return monthsMap.get(relativeDay);
+		return relativeHoursMap.get(relativeHour);
 	}
+
+	public Map<String, Integer> getWeekdayMap() {
+		return weekdayMap;
+	}
+
+	public Map<String, Integer> getMonthsMap() {
+		return monthsMap;
+	}
+
+	public Map<String, Integer> getRelativeDaysMap() {
+		return relativeDaysMap;
+	}
+
+	public Map<String, Integer> getRelativeHoursMap() {
+		return relativeHoursMap;
+	}
+	
+	
 }
