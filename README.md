@@ -20,9 +20,9 @@ The CLI is built using picocli library.
 # NLP Parser
 There are quite a number of NLP parsers available for java like **Apache OpenNLP**, **Stanford NLP**, etc but I preferred not to use any of them due to a couple of reasons:
   - Most of the available libraries are not supporting some of the grammars I frequently use.
-  - Some of these libraries are under a more restrictive open source license. I wanted this tool to be under MIT License, which is by far most permissive of all.
+  - Some of these libraries are under a more restrictive open source license and I wanted this tool to be under MIT License.
 
-For these reasons, I created a NLP parser for date-time processing. its kept simple intentionally and only supports English as of now. Test folder contains a test class with all supported formats as of now.
+For these reasons, I created a NLP parser from scratch, for date-time processing. its kept simple intentionally and only supports English as of now. Test folder contains a test class with all supported formats as of now.
 # Compatibility
 The tool is developed in Java so should work in most platforms. I tested in Windows 11 though. 
 I developed using JDK 21, but it should work in JDKs 8 or more
