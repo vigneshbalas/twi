@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vigneshbala.twi.model.CountryRecord;
-import com.vigneshbala.twi.model.DateTimeDelta;
+import com.vigneshbala.twi.model.DateTimeComponent;
 import com.vigneshbala.twi.model.ParserResult;
 import com.vigneshbala.twi.util.ReferenceDataUtil;
 
@@ -43,6 +43,10 @@ public class DateTimeNLPParser {
 	private static final String CONTAIN_MORE_DATE_TIME = "String contain more date/time.. currently only one is supported..";
 	private static final String DOES_NOT_CONTAIN_ANY_DATES_OR_TIME = "String does not contain any dates or time..";
 
+	private static final String MONTH_REGEX = "jan(?:uary)|feb(?:raury)|mar(?:ch)|apr(?:il)|may|jun(?:e)|jul(?:y)|aug(?:ust)|sep(?:tember)|oct(?:ober)|nov(?:ember)|dec(?:ember)";
+
+	private static final String DATE_REGEX = "(0?[1-9]|[1-2][0-9]|[3][0-1])(th|rd|nd|st)?";
+
 	private static final List<DateTimeZone> availableTimeZones = DateTimeZone.getAvailableIDs().stream()
 			.map(DateTimeZone::forID).collect(Collectors.toList());
 
@@ -51,9 +55,10 @@ public class DateTimeNLPParser {
 	private static DateTimeZone timeZone = null;
 
 	private static final List<String> SPECIFIERS = Arrays.asList("standard", "std", "time", "timezone", "zone", "day",
-			"light", "daylight", "savings", "rd", "st", "nd");
+			"light", "daylight", "savings");
+	private static final String YEAR_REGEX = "(19|20)\\d{2}";
 
-	private DateTimeDelta delta = null;
+	private DateTimeComponent delta = null;
 	private String input = null;
 
 	public ParserResult parse(String input, Clock clock, String format) throws Exception {
@@ -82,9 +87,19 @@ public class DateTimeNLPParser {
 			if (next && past) {
 				throw new Exception(INVALID_INPUT);
 			}
-			this.delta = new DateTimeDelta(baseTime, past);
+
+			this.delta = new DateTimeComponent(baseTime, past);
+
+			parseDate();
+
+			parseMonth();
+
+			parseYear();
+
 			parseWeekDays();
+
 			parseMonths();
+
 			parseRelativeDays();
 
 			if (this.delta.noDateTimePresent()) {
@@ -93,13 +108,61 @@ public class DateTimeNLPParser {
 			if (this.delta.moreDateTimePresent()) {
 				throw new Exception(CONTAIN_MORE_DATE_TIME);
 			}
+
 			result.putToDateTime("", this.delta.getDateTime());
+
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw e;
 		}
 
 		return result;
+	}
+
+	private void parseYear() throws Exception {
+
+		Pattern pattern = Pattern.compile(YEAR_REGEX);
+		Matcher matcher = pattern.matcher(this.input);
+		boolean match = false;
+		while (matcher.hasMatch()) {
+			if (!match) {
+				this.delta.setToYear(Integer.parseInt(matcher.group()));
+			} else {
+				throw new Exception(CONTAIN_MORE_DATE_TIME);
+			}
+
+		}
+
+	}
+
+	private void parseMonth() throws Exception {
+		Pattern pattern = Pattern.compile(MONTH_REGEX);
+		Matcher matcher = pattern.matcher(this.input);
+		boolean match = false;
+		while (matcher.hasMatch()) {
+			if (!match) {
+				this.delta.setToMonth(matcher.group());
+			} else {
+				throw new Exception(CONTAIN_MORE_DATE_TIME);
+			}
+
+		}
+
+	}
+
+	private void parseDate() throws Exception {
+		Pattern pattern = Pattern.compile(DATE_REGEX);
+		Matcher matcher = pattern.matcher(this.input);
+		boolean match = false;
+		while (matcher.find()) {
+			if (!match) {
+				this.delta.setToDate(Integer.parseInt(matcher.group()));
+			} else {
+				throw new Exception(CONTAIN_MORE_DATE_TIME);
+			}
+
+		}
+
 	}
 
 	private boolean parseRelativeHours(String input, ParserResult result, DateTime baseTime) throws Exception {
