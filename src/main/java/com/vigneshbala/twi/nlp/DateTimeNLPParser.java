@@ -32,6 +32,8 @@ import com.vigneshbala.twi.util.ReferenceDataUtil;
  */
 public class DateTimeNLPParser {
 
+	private static final String INVALID_INPUT = "Invalid Input";
+	private static final String NEXT = "next";
 	private static final String PAST = "past";
 	private static final String LAST = "last";
 	private static final String TOMORROW = "tomorrow";
@@ -56,27 +58,35 @@ public class DateTimeNLPParser {
 		ParserResult result = new ParserResult(format);
 		DateTime baseTime = new DateTime(clock.millis());
 		result.setFromDateTime(baseTime);
-		boolean isMatchedOnce = false;
 		boolean past = false;
+		boolean next = false;
 
 		try {
 			input = extractandCleanInput(input);
-			past = inputHasLastorPast(input, past);
+			past = inputHasLastorPast(input);
+			next = inputHasNext(input);
 			String matchedKey = null;
-			isMatchedOnce = parseWeekDays(input, result, baseTime, isMatchedOnce, past);
+			if (next && past) {
+				throw new Exception(INVALID_INPUT);
+			}
 
-			isMatchedOnce = parseMonths(input, result, baseTime, isMatchedOnce);
-			matchedKey = parseRelativeDays(input, isMatchedOnce);
-			isMatchedOnce = matchedKey != null;
+			boolean matchedWeekDay = parseWeekDays(input, result, baseTime, past);
+
+			boolean matchedMonth = parseMonths(input, result, baseTime, past);
+			matchedKey = parseRelativeDays(input);
+			boolean matchedRelDays = matchedKey != null;
 			if (matchedKey != null) {
 				int deltaDays = DateTimeUnits.getInstance().getRelativeDay(matchedKey);
 				DateTime newTime = baseTime.plusDays(deltaDays);
 				result.putToDateTime(matchedKey + ":", newTime);
 			}
 
-			isMatchedOnce = parseRelativeHours(input, result, baseTime, isMatchedOnce);
-			if (!isMatchedOnce) {
+			boolean matchedHours = parseRelativeHours(input, result, baseTime);
+			if (!matchedWeekDay && !matchedMonth && !matchedRelDays && !matchedHours) {
 				throw new Exception(DOES_NOT_CONTAIN_ANY_DATES_OR_TIME);
+			}
+			if (result.getToDateTime().size() > 1) {
+				throw new Exception(CONTAIN_MORE_DATE_TIME);
 			}
 		} catch (Exception e) {
 			log.error(e.getMessage());
@@ -86,46 +96,33 @@ public class DateTimeNLPParser {
 		return result;
 	}
 
-	private boolean parseRelativeHours(String input, ParserResult result, DateTime baseTime, boolean isMatchedOnce)
-			throws Exception {
+	private boolean parseRelativeHours(String input, ParserResult result, DateTime baseTime) throws Exception {
+		boolean match = false;
 		for (String key : DateTimeUnits.getInstance().getRelativeHoursMap().keySet()) {
 			if (hasMatch(key, input)) {
-				if (isMatchedOnce) {
-					throw new Exception(CONTAIN_MORE_DATE_TIME);
-				} else {
-					isMatchedOnce = true;
-					int deltaHours = DateTimeUnits.getInstance().getRelativeHour(key);
-					DateTime newTime = baseTime.plusHours(deltaHours);
-					result.putToDateTime(key + ":", newTime);
-				}
+				match = true;
+				int deltaHours = DateTimeUnits.getInstance().getRelativeHour(key);
+				DateTime newTime = baseTime.plusHours(deltaHours);
+				result.putToDateTime(key + ":", newTime);
 
 			}
 
 		}
-		return isMatchedOnce;
+		return match;
 	}
 
-	private String parseRelativeDays(String input, boolean isMatchedOnce) throws Exception {
+	private String parseRelativeDays(String input) throws Exception {
 		String matchedKey = null;
-		boolean yesterday = false;
-		boolean tomorrow = false;
 		for (String key : DateTimeUnits.getInstance().getRelativeDaysMap().keySet()) {
 
 			if (hasMatch(key, input)) {
-				if (isMatchedOnce && !yesterday && !tomorrow) {
-					throw new Exception(CONTAIN_MORE_DATE_TIME);
-				} else {
-					if (key.equals(YESTERDAY)) {
-						yesterday = true;
-						isMatchedOnce = true;
-						matchedKey = YESTERDAY;
-					} else if (key.equals(TOMORROW)) {
-						tomorrow = true;
-						isMatchedOnce = true;
-						matchedKey = TOMORROW;
-					}
-					matchedKey = key;
+
+				if (key.equals(YESTERDAY)) {
+					matchedKey = YESTERDAY;
+				} else if (key.equals(TOMORROW)) {
+					matchedKey = TOMORROW;
 				}
+				matchedKey = key;
 
 			}
 
@@ -133,49 +130,50 @@ public class DateTimeNLPParser {
 		return matchedKey;
 	}
 
-	private boolean parseMonths(String input, ParserResult result, DateTime baseTime, boolean isMatchedOnce)
-			throws Exception {
+	private boolean parseMonths(String input, ParserResult result, DateTime baseTime,boolean past) throws Exception {
+		boolean match = false;
 		for (String key : DateTimeUnits.getInstance().getMonthsMap().keySet()) {
 			if (hasMatch(key, input)) {
-				if (isMatchedOnce) {
-					throw new Exception(CONTAIN_MORE_DATE_TIME);
-				} else {
-					isMatchedOnce = true;
-					int deltaDays = getDeltaMonths(baseTime, DateTimeUnits.getInstance().getMonth(key));
-					DateTime newTime = baseTime.plusDays(deltaDays);
-					result.putToDateTime(key + ":", newTime);
-				}
+				match = true;
+				int deltaMonths = getDeltaMonths(baseTime, DateTimeUnits.getInstance().getMonth(key),past);
+				DateTime newTime = baseTime.plusMonths(deltaMonths);
+				result.putToDateTime(key + ":", newTime);
 
 			}
 
 		}
-		return isMatchedOnce;
+		return match;
 	}
 
-	private boolean parseWeekDays(String input, ParserResult result, DateTime baseTime, boolean isMatchedOnce,
-			boolean past) throws Exception {
+	private boolean parseWeekDays(String input, ParserResult result, DateTime baseTime, boolean past) throws Exception {
+		boolean match = false;
 		for (String key : DateTimeUnits.getInstance().getWeekdayMap().keySet()) {
 			if (hasMatch(key, input)) {
-				if (isMatchedOnce) {
-					throw new Exception(CONTAIN_MORE_DATE_TIME);
-				} else {
-					isMatchedOnce = true;
-					int deltaDays = getDeltaDays(baseTime, DateTimeUnits.getInstance().getWeekDay(key), past);
-					DateTime newTime = baseTime.plusDays(deltaDays);
-					result.putToDateTime(key + ":", newTime);
-				}
+				match = true;
+				int deltaDays = getDeltaDays(baseTime, DateTimeUnits.getInstance().getWeekDay(key), past);
+				DateTime newTime = baseTime.plusDays(deltaDays);
+				result.putToDateTime(key + ":", newTime);
 
 			}
 
 		}
-		return isMatchedOnce;
+		return match;
 	}
 
-	private boolean inputHasLastorPast(String input, boolean past) {
+	private boolean inputHasLastorPast(String input) {
+		boolean past = false;
 		if (hasMatch(LAST, input) || hasMatch(PAST, input)) {
 			past = true;
 		}
 		return past;
+	}
+
+	private boolean inputHasNext(String input) {
+		boolean next = false;
+		if (hasMatch(NEXT, input)) {
+			next = true;
+		}
+		return next;
 	}
 
 	/**
@@ -326,9 +324,12 @@ public class DateTimeNLPParser {
 		return deltaDays;
 	}
 
-	private static int getDeltaMonths(DateTime baseTime, int deltaMonths) {
+	private static int getDeltaMonths(DateTime baseTime, int deltaMonths, boolean isPast) {
 		deltaMonths = deltaMonths - baseTime.getMonthOfYear();
-		deltaMonths = deltaMonths >= 0 ? deltaMonths : (TOTAL_MONTHS + deltaMonths);
+		if(!isPast) {
+			deltaMonths = deltaMonths >= 0 ? deltaMonths : (TOTAL_MONTHS + deltaMonths);
+		}
+		
 		return deltaMonths;
 	}
 

@@ -40,6 +40,9 @@ public class DateTimeUnits {
 		monthsMap.put("oct", 10);
 		monthsMap.put("nov", 11);
 		monthsMap.put("dec", 12);
+		monthsMap.put("past month", -1);
+		monthsMap.put("last month", -1);
+		monthsMap.put("next month", 1);
 
 		relativeDaysMap.put("today", 0);
 		relativeDaysMap.put("yesterday", -1);
