@@ -74,7 +74,7 @@ public class TimeConversionUtilTest {
 			Assert.assertEquals(
 					TimeConversionUtil.convertDateTime("day after tomorrow", DD_MM_YYYY, JUL_17_2024, null, null, null),
 					"19-07-2024");
-			
+
 			Assert.assertEquals(
 					TimeConversionUtil.convertDateTime("last Monday", DD_MM_YYYY, JUL_17_2024, null, null, null),
 					"15-07-2024");
@@ -104,9 +104,12 @@ public class TimeConversionUtilTest {
 	@Test
 	private void testMonths() {
 		try {
-			Assert.assertEquals(
-					TimeConversionUtil.convertDateTime("August", DD_MM_YYYY, JUL_17_2024, null, null, null),
-					"01-08-2024");
+			Assert.assertEquals(TimeConversionUtil.convertDateTime("August", DD_MM_YYYY, JUL_17_2024, null, null, null),
+					"17-08-2024");
+			Assert.assertEquals(TimeConversionUtil.convertDateTime("January", DD_MM_YYYY, JUL_17_2024, null, null, null),
+					"17-01-2025");
+			Assert.assertEquals(TimeConversionUtil.convertDateTime("July", DD_MM_YYYY, JUL_17_2024, null, null, null),
+					"17-07-2024");
 //			Assert.assertEquals(
 //					TimeConversionUtil.convertDateTime("July 19th", DD_MM_YYYY, JUL_17_2024, null, null, null),
 //					"19-07-2024");

@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vigneshbala.twi.model.CountryRecord;
+import com.vigneshbala.twi.model.DateTimeDelta;
 import com.vigneshbala.twi.model.ParserResult;
 import com.vigneshbala.twi.util.ReferenceDataUtil;
 
@@ -39,8 +40,6 @@ public class DateTimeNLPParser {
 	private static final String TOMORROW = "tomorrow";
 	private static final String YESTERDAY = "yesterday";
 	private static Logger log = LoggerFactory.getLogger(DateTimeNLPParser.class);
-	private static final int TOTAL_WEEKDAYS = 7;
-	private static final int TOTAL_MONTHS = 12;
 	private static final String CONTAIN_MORE_DATE_TIME = "String contain more date/time.. currently only one is supported..";
 	private static final String DOES_NOT_CONTAIN_ANY_DATES_OR_TIME = "String does not contain any dates or time..";
 
@@ -54,40 +53,47 @@ public class DateTimeNLPParser {
 	private static final List<String> SPECIFIERS = Arrays.asList("standard", "std", "time", "timezone", "zone", "day",
 			"light", "daylight", "savings", "rd", "st", "nd");
 
+	private DateTimeDelta delta = null;
+	private String input = null;
+
 	public ParserResult parse(String input, Clock clock, String format) throws Exception {
 		ParserResult result = new ParserResult(format);
 		DateTime baseTime = new DateTime(clock.millis());
 		result.setFromDateTime(baseTime);
+		/**
+		 * last <Month Name>, past <Month Name> - Date 01, Month - current ,Year -
+		 * current - 1 next <Month Name> - Date 01, Month - current ,Year - current +1
+		 * coming <Month Name> - Date 01, Month - current ,Year - if(current month <
+		 * month- current, else current +1
+		 * 
+		 * tomorrow = Date today + 1, Month - current, year - current
+		 * 
+		 * 
+		 */
+
 		boolean past = false;
 		boolean next = false;
 
 		try {
-			input = extractandCleanInput(input);
+			this.input = extractandCleanInput(input);
 			past = inputHasLastorPast(input);
 			next = inputHasNext(input);
-			String matchedKey = null;
+
 			if (next && past) {
 				throw new Exception(INVALID_INPUT);
 			}
+			this.delta = new DateTimeDelta(baseTime, past);
+			parseWeekDays();
+			parseMonths();
+			parseRelativeDays();
 
-			boolean matchedWeekDay = parseWeekDays(input, result, baseTime, past);
-
-			boolean matchedMonth = parseMonths(input, result, baseTime, past);
-			matchedKey = parseRelativeDays(input);
-			boolean matchedRelDays = matchedKey != null;
-			if (matchedKey != null) {
-				int deltaDays = DateTimeUnits.getInstance().getRelativeDay(matchedKey);
-				DateTime newTime = baseTime.plusDays(deltaDays);
-				result.putToDateTime(matchedKey + ":", newTime);
-			}
-
-			boolean matchedHours = parseRelativeHours(input, result, baseTime);
-			if (!matchedWeekDay && !matchedMonth && !matchedRelDays && !matchedHours) {
+			if (this.delta.noDateTimePresent()) {
 				throw new Exception(DOES_NOT_CONTAIN_ANY_DATES_OR_TIME);
 			}
-			if (result.getToDateTime().size() > 1) {
+			if (this.delta.moreDateTimePresent()) {
 				throw new Exception(CONTAIN_MORE_DATE_TIME);
 			}
+			result.putToDateTime("", this.delta.getDateTime());
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw e;
@@ -111,53 +117,40 @@ public class DateTimeNLPParser {
 		return match;
 	}
 
-	private String parseRelativeDays(String input) throws Exception {
+	private void parseRelativeDays() throws Exception {
 		String matchedKey = null;
 		for (String key : DateTimeUnits.getInstance().getRelativeDaysMap().keySet()) {
-
-			if (hasMatch(key, input)) {
-
+			if (hasMatch(key, this.input)) {
 				if (key.equals(YESTERDAY)) {
 					matchedKey = YESTERDAY;
 				} else if (key.equals(TOMORROW)) {
 					matchedKey = TOMORROW;
+				} else {
+					matchedKey = key;
 				}
-				matchedKey = key;
-
 			}
-
 		}
-		return matchedKey;
+		if (matchedKey != null)
+			this.delta.setRelativeDayDelta(matchedKey);
+
 	}
 
-	private boolean parseMonths(String input, ParserResult result, DateTime baseTime,boolean past) throws Exception {
-		boolean match = false;
+	private void parseMonths() throws Exception {
 		for (String key : DateTimeUnits.getInstance().getMonthsMap().keySet()) {
-			if (hasMatch(key, input)) {
-				match = true;
-				int deltaMonths = getDeltaMonths(baseTime, DateTimeUnits.getInstance().getMonth(key),past);
-				DateTime newTime = baseTime.plusMonths(deltaMonths);
-				result.putToDateTime(key + ":", newTime);
-
+			if (hasMatch(key, this.input)) {
+				this.delta.setMonthDelta(key);
 			}
 
 		}
-		return match;
 	}
 
-	private boolean parseWeekDays(String input, ParserResult result, DateTime baseTime, boolean past) throws Exception {
-		boolean match = false;
+	private void parseWeekDays() throws Exception {
 		for (String key : DateTimeUnits.getInstance().getWeekdayMap().keySet()) {
-			if (hasMatch(key, input)) {
-				match = true;
-				int deltaDays = getDeltaDays(baseTime, DateTimeUnits.getInstance().getWeekDay(key), past);
-				DateTime newTime = baseTime.plusDays(deltaDays);
-				result.putToDateTime(key + ":", newTime);
-
+			if (hasMatch(key, this.input)) {
+				this.delta.setDayDelta(key);
 			}
 
 		}
-		return match;
 	}
 
 	private boolean inputHasLastorPast(String input) {
@@ -313,24 +306,6 @@ public class DateTimeNLPParser {
 	private static boolean tokenMatchesTZCodeOrName(List<String> tokens, DateTimeZone zone) {
 		return tokens.contains(zone.getShortName(DateTimeUtils.currentTimeMillis()))
 				|| tokens.contains(zone.getName(DateTimeUtils.currentTimeMillis())) || tokens.contains(zone.getID());
-	}
-
-	private static int getDeltaDays(DateTime baseTime, int deltaDays, boolean isPast) {
-		deltaDays = deltaDays - baseTime.getDayOfWeek();
-		if (!isPast) {
-			deltaDays = deltaDays >= 0 ? deltaDays : (TOTAL_WEEKDAYS + deltaDays);
-		}
-
-		return deltaDays;
-	}
-
-	private static int getDeltaMonths(DateTime baseTime, int deltaMonths, boolean isPast) {
-		deltaMonths = deltaMonths - baseTime.getMonthOfYear();
-		if(!isPast) {
-			deltaMonths = deltaMonths >= 0 ? deltaMonths : (TOTAL_MONTHS + deltaMonths);
-		}
-		
-		return deltaMonths;
 	}
 
 	public boolean hasMatch(String regex, String text) {

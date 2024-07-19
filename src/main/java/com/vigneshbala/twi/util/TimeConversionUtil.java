@@ -23,8 +23,6 @@ import com.vigneshbala.twi.nlp.DateTimeNLPParser;
  * This code is licensed under MIT license (see LICENSE for details)
  */
 public class TimeConversionUtil {
-	private static final String ENGLISH = "eng";
-	
 	private static final String INVALID_OFFSET_FORMAT = "Invalid Offset Format.. supported formats: +8, +8.5,+08:00,+08:30,-8, -8.5 -08:00,-08:30";
 	private static final String DOT = ".";
 	private static final String ESCAPED_DOT = "\\.";
