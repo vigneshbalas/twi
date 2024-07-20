@@ -46,10 +46,10 @@ public class DateTimeUnits {
 		monthsMap.put("next month", 1);
 
 		relativeDaysMap.put("today", 0);
+		relativeDaysMap.put("day before", -2);
 		relativeDaysMap.put("yesterday", -1);
+		relativeDaysMap.put("day after", 2);
 		relativeDaysMap.put("tomorrow", 1);
-		relativeDaysMap.put("day after tomorrow", 2);
-		relativeDaysMap.put("day before yesterday", -2);
 		relativeDaysMap.put("now", 0);
 		relativeDaysMap.put("days from today", 1);
 		relativeDaysMap.put("days from now", 1);

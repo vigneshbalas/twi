@@ -65,17 +65,6 @@ public class DateTimeNLPParser {
 		ParserResult result = new ParserResult(format);
 		DateTime baseTime = new DateTime(clock.millis());
 		result.setFromDateTime(baseTime);
-		/**
-		 * last <Month Name>, past <Month Name> - Date 01, Month - current ,Year -
-		 * current - 1 next <Month Name> - Date 01, Month - current ,Year - current +1
-		 * coming <Month Name> - Date 01, Month - current ,Year - if(current month <
-		 * month- current, else current +1
-		 * 
-		 * tomorrow = Date today + 1, Month - current, year - current
-		 * 
-		 * 
-		 */
-
 		boolean past = false;
 		boolean next = false;
 
@@ -91,16 +80,18 @@ public class DateTimeNLPParser {
 			this.delta = new DateTimeComponent(baseTime, past);
 
 			parseYear();
-			
+
 			parseMonth();
 
 			parseDate();
+			
+			parseRelativeDays();
 
 			parseWeekDays();
 
 			parseMonthsDelta();
 
-			parseRelativeDays();
+			
 
 			if (this.delta.noDateTimePresent()) {
 				throw new Exception(DOES_NOT_CONTAIN_ANY_DATES_OR_TIME);
@@ -127,7 +118,7 @@ public class DateTimeNLPParser {
 		while (matcher.find()) {
 			if (!match) {
 				this.delta.setToYear(Integer.parseInt(matcher.group()));
-				this.input.replaceAll(matcher.group(), "");
+				this.input = this.input.replaceAll(matcher.group(), "");
 			} else {
 				throw new Exception(CONTAIN_MORE_DATE_TIME);
 			}
@@ -143,7 +134,7 @@ public class DateTimeNLPParser {
 		while (matcher.find()) {
 			if (!match) {
 				this.delta.setToMonth(matcher.group());
-				this.input.replaceAll(matcher.group(), "");
+				this.input = this.input.replaceAll(matcher.group(), "");
 			} else {
 				throw new Exception(CONTAIN_MORE_DATE_TIME);
 			}
@@ -172,7 +163,7 @@ public class DateTimeNLPParser {
 	private boolean parseRelativeHours(String input, ParserResult result, DateTime baseTime) throws Exception {
 		boolean match = false;
 		for (String key : DateTimeUnits.getInstance().getRelativeHoursMap().keySet()) {
-			if (hasMatch(key, input)) {
+			if (hasMatch(key)) {
 				match = true;
 				int deltaHours = DateTimeUnits.getInstance().getRelativeHour(key);
 				DateTime newTime = baseTime.plusHours(deltaHours);
@@ -187,7 +178,7 @@ public class DateTimeNLPParser {
 	private void parseRelativeDays() throws Exception {
 		String matchedKey = null;
 		for (String key : DateTimeUnits.getInstance().getRelativeDaysMap().keySet()) {
-			if (hasMatch(key, this.input)) {
+			if (hasMatch(key)) {
 				if (key.equals(YESTERDAY)) {
 					matchedKey = YESTERDAY;
 				} else if (key.equals(TOMORROW)) {
@@ -204,7 +195,7 @@ public class DateTimeNLPParser {
 
 	private void parseMonthsDelta() throws Exception {
 		for (String key : DateTimeUnits.getInstance().getMonthsMap().keySet()) {
-			if (hasMatch(key, this.input)) {
+			if (hasMatch(key)) {
 				this.delta.setMonthDelta(key);
 			}
 
@@ -213,7 +204,7 @@ public class DateTimeNLPParser {
 
 	private void parseWeekDays() throws Exception {
 		for (String key : DateTimeUnits.getInstance().getWeekdayMap().keySet()) {
-			if (hasMatch(key, this.input)) {
+			if (hasMatch(key)) {
 				this.delta.setDayDelta(key);
 			}
 
@@ -222,7 +213,7 @@ public class DateTimeNLPParser {
 
 	private boolean inputHasLastorPast(String input) {
 		boolean past = false;
-		if (hasMatch(LAST, input) || hasMatch(PAST, input)) {
+		if (hasMatch(LAST) || hasMatch(PAST)) {
 			past = true;
 		}
 		return past;
@@ -230,7 +221,7 @@ public class DateTimeNLPParser {
 
 	private boolean inputHasNext(String input) {
 		boolean next = false;
-		if (hasMatch(NEXT, input)) {
+		if (hasMatch(NEXT)) {
 			next = true;
 		}
 		return next;
@@ -375,23 +366,14 @@ public class DateTimeNLPParser {
 				|| tokens.contains(zone.getName(DateTimeUtils.currentTimeMillis())) || tokens.contains(zone.getID());
 	}
 
-	public boolean hasMatch(String regex, String text) {
+	private boolean hasMatch(String regex) {
 		Pattern pattern = Pattern.compile(regex);
-		Matcher matcher = pattern.matcher(text);
+		Matcher matcher = pattern.matcher(this.input);
 		boolean match = false;
 		while (matcher.find()) {
 			match = true;
+			this.input=this.input.replaceAll(matcher.group(), "");
 		}
 		return match;
-	}
-
-	public static void main(String[] args) {
-		// Pattern pattern = Pattern.compile("\\d{1,2}(st|rd|th|nd|\\s)?");
-		Pattern pattern = Pattern.compile("jan(?:uary)|feb(?:raury)|mar(?:ch)|apr(?:il)|may|jun(?:e)|jul(?:y)|aug(?:ust)|sep(?:tember)|oct(?:ober)|nov(?:ember)|dec(?:ember)");
-		Matcher matcher = pattern.matcher("july");
-
-		while (matcher.find()) {
-			System.out.println(">>" + matcher.group());
-		}
 	}
 }
