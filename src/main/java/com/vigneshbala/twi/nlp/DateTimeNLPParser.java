@@ -46,6 +46,7 @@ public class DateTimeNLPParser {
 	private static final String MONTH_REGEX = "jan(?:uary)|feb(?:raury)|mar(?:ch)|apr(?:il)|may|jun(?:e)|jul(?:y)|aug(?:ust)|sep(?:tember)|oct(?:ober)|nov(?:ember)|dec(?:ember)";
 
 	private static final String DATE_REGEX = "\\d{1,2}(st|rd|th|nd|\\s)?";
+	private static final String HOUR_MIN_REGEX = "(?<hour>\\d{1,2})\\s?(?<minute>:?\\d{1,2})?\\s?(?<suffix>hours|hrs|am|pm)?\\b";
 
 	private static final List<DateTimeZone> availableTimeZones = DateTimeZone.getAvailableIDs().stream()
 			.map(DateTimeZone::forID).collect(Collectors.toList());
@@ -79,19 +80,19 @@ public class DateTimeNLPParser {
 
 			this.delta = new DateTimeComponent(baseTime, past);
 
+			parseHourMinuteSeconds();
+
 			parseYear();
 
 			parseMonth();
 
 			parseDate();
-			
+
 			parseRelativeDays();
 
 			parseWeekDays();
 
 			parseMonthsDelta();
-
-			
 
 			if (this.delta.noDateTimePresent()) {
 				throw new Exception(DOES_NOT_CONTAIN_ANY_DATES_OR_TIME);
@@ -108,6 +109,35 @@ public class DateTimeNLPParser {
 		}
 
 		return result;
+	}
+
+	private void parseHourMinuteSeconds() throws Exception {
+		Pattern pattern = Pattern.compile(HOUR_MIN_REGEX);
+		Matcher matcher = pattern.matcher(this.input);
+		boolean match = false;
+		while (matcher.find()) {
+			if (!match) {
+				String hourString = matcher.group("hour");
+				String minString = matcher.group("minute");
+				if (hourString != null) {
+					int hour = Integer.parseInt(matcher.group("hour").trim());
+					if (matcher.group("suffix") != null && matcher.group("suffix").trim().equals("pm")) {
+						hour += 12;
+					}
+					this.delta.setToHour(hour);
+				}
+
+				if (minString != null) {
+					this.delta.setToMin(Integer.parseInt(matcher.group("minute").trim()));
+				}
+
+				this.input = this.input.replaceAll(matcher.group(), "");
+			} else {
+				throw new Exception(CONTAIN_MORE_DATE_TIME);
+			}
+
+		}
+
 	}
 
 	private void parseYear() throws Exception {
@@ -372,7 +402,7 @@ public class DateTimeNLPParser {
 		boolean match = false;
 		while (matcher.find()) {
 			match = true;
-			this.input=this.input.replaceAll(matcher.group(), "");
+			this.input = this.input.replaceAll(matcher.group(), "");
 		}
 		return match;
 	}

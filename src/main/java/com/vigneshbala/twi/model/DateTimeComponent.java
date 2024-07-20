@@ -24,6 +24,8 @@ public class DateTimeComponent {
 	int toDate;
 	int toMonth;
 	int toYear;
+	int toHour;
+	int toMin;
 
 	private static final int TOTAL_WEEKDAYS = 7;
 	private static final int TOTAL_MONTHS = 12;
@@ -34,7 +36,31 @@ public class DateTimeComponent {
 		this.toDate = baseTime.dayOfMonth().get();
 		this.toMonth = baseTime.monthOfYear().get();
 		this.toYear = baseTime.getYear();
+		this.toHour = baseTime.getHourOfDay();
+		this.toMin = baseTime.getMinuteOfHour();
 
+	}
+
+	public int getToHour() {
+		return toHour;
+	}
+
+	public void setToHour(int toHour) {
+		this.toHour = toHour;
+		// set minute to zero if hour is available.
+		this.toMin = 0;
+		this.countAbsoluteDateTimes++;
+		this.isDateTimePresent = true;
+	}
+
+	public int getToMin() {
+		return toMin;
+	}
+
+	public void setToMin(int toMin) {
+		this.toMin = toMin;
+		this.countAbsoluteDateTimes++;
+		this.isDateTimePresent = true;
 	}
 
 	public int getToDate() {
@@ -152,8 +178,9 @@ public class DateTimeComponent {
 	public DateTime getDateTime() {
 		DateTime result = null;
 		if (countAbsoluteDateTimes > 0) {
-			DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy");
-			result = formatter.parseDateTime(toDate + "/" + toMonth + "/" + toYear);
+			DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
+			result = formatter
+					.parseDateTime(toDate + "/" + toMonth + "/" + toYear + " " + toHour + ":" + toMin + ":00");
 			if (result.getMonthOfYear() < baseTime.getMonthOfYear()) {
 				result = result.plusYears(1);
 				if (result.getDayOfMonth() < baseTime.getDayOfMonth()) {
