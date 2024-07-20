@@ -5,9 +5,7 @@
 
 Help me master, he knelt beside his grand master **Yoda**. Help me to quickly navigate the times... I need to convert dates and time faster...
 
-Master Yoda, slowly opened his eyes, "**Time what is?** You ask".Hmm? Hmm.. I will help.. For my ally is the Force, and a powerful ally it is..
-
-He then flicked his finger....................
+Master Yoda, slowly opened his eyes, "**Time what is?** You ask".Hmm? Hmm.. I will help.. For my ally is the Force, and a powerful ally it is......
 
 # About twi
 
