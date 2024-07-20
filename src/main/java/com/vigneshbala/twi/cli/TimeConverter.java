@@ -50,10 +50,6 @@ public class TimeConverter implements Callable<Integer> {
 			"--timezone" }, description = "Timezone short code or id (e.g. IST or Asia/Kolkata. repeat for passing multiple values)")
 	private String[] zones;
 
-	@Option(names = { "-c",
-			"--country" }, description = "3 digit Country Code/2 digit Country Code/country name (e.g. IND or IN or India. repeat for passing multiple values)")
-	private String[] countries;
-
 	@Option(names = { "-o",
 			"--offset" }, description = "Offset from UTC format: +8, +8.5,+08:00,+08:30,-8, -8.5 -08:00,-08:30. repeat for passing multiple values")
 	private String[] offsets;
@@ -62,8 +58,7 @@ public class TimeConverter implements Callable<Integer> {
 	public Integer call() throws Exception {
 		Integer exitCode = 0;
 		try {
-			System.out.println(
-					TimeConversionUtil.convertDateTime(input, format, new DateTime(), zones, countries, offsets));
+			System.out.println(TimeConversionUtil.convertDateTime(input, format, new DateTime(), zones, null, offsets));
 		} catch (Exception e) {
 			e.printStackTrace();
 			exitCode = 500;
@@ -72,9 +67,6 @@ public class TimeConverter implements Callable<Integer> {
 		return exitCode;
 	}
 
-	// this example implements Callable, so parsing, error handling and handling
-	// user
-	// requests for usage help or version help can be done with one line of code.
 	public static void main(String... args) {
 		int exitCode = new CommandLine(new TimeConverter()).execute(args);
 	}

@@ -30,8 +30,7 @@ Following are the supported input grammars:
 5. Full date in 10th July 2024 or 10 jul or jul 10 2024 - If month or date or year is not given, then the current date's month, day or year will be used
 6. increments or decrements of day,month,year,hour and minutes
 7. Timezones (1 or many) - can use short code or id or full name (e.g. SGT or Asia/Singapore)
-8. Country (1 or many) - ISO 3 digit, 2 digit or Country name - Will return all timezones if more than one timezones are available
-9. Offset (1 or many) - utc offset in format of +8.5 or +08:30
+8. Offset (1 or many) - utc offset in format of +8.5 or +08:30
 
 Below table gives a overview of some of the above test outcomes
 | #  | Current Date Time   | Current Weekday | Input String         | Output                 | Remarks                                     |
