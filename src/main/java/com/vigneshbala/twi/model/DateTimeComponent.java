@@ -49,7 +49,6 @@ public class DateTimeComponent {
 		this.toHour = toHour;
 		// set minute to zero if hour is available.
 		this.toMin = 0;
-		this.countAbsoluteDateTimes++;
 		this.isDateTimePresent = true;
 	}
 
@@ -59,7 +58,6 @@ public class DateTimeComponent {
 
 	public void setToMin(int toMin) {
 		this.toMin = toMin;
-		this.countAbsoluteDateTimes++;
 		this.isDateTimePresent = true;
 	}
 
@@ -115,6 +113,13 @@ public class DateTimeComponent {
 		this.isDateTimePresent = true;
 	}
 
+	public void setDayDelta(int dayDelta) {
+
+		this.dayDelta = dayDelta;
+		this.countDeltas++;
+		this.isDateTimePresent = true;
+	}
+
 	public void setRelativeDayDelta(String day) {
 		int deltaDays = DateTimeUnits.getInstance().getRelativeDay(day);
 		this.dayDelta = deltaDays;
@@ -124,6 +129,12 @@ public class DateTimeComponent {
 
 	public int getMonthDelta() {
 		return monthDelta;
+	}
+
+	public void setMonthDelta(int monthDelta) {
+		this.monthDelta = monthDelta;
+		this.countDeltas++;
+		this.isDateTimePresent = true;
 	}
 
 	public void setMonthDelta(String month) {
@@ -177,21 +188,31 @@ public class DateTimeComponent {
 
 	public DateTime getDateTime() {
 		DateTime result = null;
-		if (countAbsoluteDateTimes > 0) {
-			DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
-			result = formatter
-					.parseDateTime(toDate + "/" + toMonth + "/" + toYear + " " + toHour + ":" + toMin + ":00");
-			if (result.getMonthOfYear() < baseTime.getMonthOfYear()) {
-				result = result.plusYears(1);
-				if (result.getDayOfMonth() < baseTime.getDayOfMonth()) {
-					result = result.plusMonths(1);
-				}
+		if (this.dayDelta != 0) {
+			this.toDate = this.baseTime.plusDays(dayDelta).getDayOfMonth();
+		}
+		if (this.monthDelta != 0) {
+			this.toMonth = this.baseTime.plusMonths(monthDelta).getMonthOfYear();
+		}
+		if (this.yearDelta != 0) {
+			this.toYear = this.baseTime.plusYears(yearDelta).getYear();
+		}
+		if (this.hourDelta != 0) {
+			this.toHour = this.baseTime.plusHours(hourDelta).getHourOfDay();
 
+		}
+		if (this.minuteDelta != 0) {
+			this.toMin = this.baseTime.plusMinutes(minuteDelta).getMinuteOfHour();
+		}
+
+		DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
+		result = formatter.parseDateTime(toDate + "/" + toMonth + "/" + toYear + " " + toHour + ":" + toMin + ":00");
+		if (result.getMonthOfYear() < baseTime.getMonthOfYear()) {
+			result = result.plusYears(1);
+			if (result.getDayOfMonth() < baseTime.getDayOfMonth()) {
+				result = result.plusMonths(1);
 			}
 
-		} else {
-			result = this.baseTime.plusDays(dayDelta).plusMonths(monthDelta).plusYears(yearDelta)
-					.plusMinutes(minuteDelta).plusHours(hourDelta);
 		}
 		return result;
 	}

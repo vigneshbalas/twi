@@ -1,9 +1,9 @@
 package com.vigneshbala.twi.cli;
 
 import java.io.IOException;
-import java.time.Clock;
 import java.util.concurrent.Callable;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -18,7 +18,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 /**
- * (c) 2024 Vignesh Balasubramanian 
+ * (c) 2024 Vignesh Balasubramanian
  * 
  * This code is licensed under MIT license (see LICENSE for details)
  */
@@ -62,8 +62,8 @@ public class TimeConverter implements Callable<Integer> {
 	public Integer call() throws Exception {
 		Integer exitCode = 0;
 		try {
-			System.out.println(TimeConversionUtil.convertDateTime(input, format, Clock.systemDefaultZone(), zones,
-					countries, offsets));
+			System.out.println(
+					TimeConversionUtil.convertDateTime(input, format, new DateTime(), zones, countries, offsets));
 		} catch (Exception e) {
 			e.printStackTrace();
 			exitCode = 500;

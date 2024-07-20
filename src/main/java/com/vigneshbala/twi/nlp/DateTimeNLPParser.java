@@ -1,6 +1,7 @@
 package com.vigneshbala.twi.nlp;
 
 import java.time.Clock;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
@@ -33,39 +34,74 @@ import com.vigneshbala.twi.util.ReferenceDataUtil;
  */
 public class DateTimeNLPParser {
 
+	private static Logger log = LoggerFactory.getLogger(DateTimeNLPParser.class);
+
+	// Literal constants
+	private static final String HRS = "hrs";
+	private static final String HR = "hr";
+	private static final String H = "h";
+	private static final String HOURS = "hours";
+	private static final String HOUR = "hour";
+	private static final String D = "d";
+	private static final String DAY = "day";
+	private static final String DAYS = "days";
+	private static final String M = "m";
+	private static final String MONTH = "month";
+	private static final String MONTHS = "months";
+	private static final String MINUS = "-";
+	private static final String PLUS = "+";
+	private static final String FIELD = "field";
+	private static final String DECIMAL = "decimal";
+	private static final String NUMBER = "number";
+	private static final String RELATION = "relation";
 	private static final String INVALID_INPUT = "Invalid Input";
 	private static final String NEXT = "next";
 	private static final String PAST = "past";
 	private static final String LAST = "last";
 	private static final String TOMORROW = "tomorrow";
 	private static final String YESTERDAY = "yesterday";
-	private static Logger log = LoggerFactory.getLogger(DateTimeNLPParser.class);
-	private static final String CONTAIN_MORE_DATE_TIME = "String contain more date/time.. currently only one is supported..";
-	private static final String DOES_NOT_CONTAIN_ANY_DATES_OR_TIME = "String does not contain any dates or time..";
+	private static final List<String> SPECIFIERS = Arrays.asList("standard", "std", "time", "timezone", "zone", "day",
+			"light", "daylight", "savings");
 
+	// Regular Expressions
 	private static final String MONTH_REGEX = "jan(?:uary)|feb(?:raury)|mar(?:ch)|apr(?:il)|may|jun(?:e)|jul(?:y)|aug(?:ust)|sep(?:tember)|oct(?:ober)|nov(?:ember)|dec(?:ember)";
-
 	private static final String DATE_REGEX = "\\d{1,2}(st|rd|th|nd|\\s)?";
 	private static final String HOUR_MIN_REGEX = "(?<hour>\\d{1,2})\\s?(?<minute>:?\\d{1,2})?\\s?(?<suffix>hours|hrs|am|pm)?\\b";
+	private static final String RELATIVE_REGEX = "(?<relation>\\+|\\-)(?<number>\\d{1,2}(?<decimal>.\\d{1,2})?)(?<field>days|day|d|months|month|m|hrs|h|hours|hr|min|m|mins)?";
+	private static final String TIME_REGEX = "([0-9]{1,2})(:[0-9]{1,2})?";
+	private static final String YEAR_REGEX = "\\d{4}";
 
+	// Time Zones
 	private static final List<DateTimeZone> availableTimeZones = DateTimeZone.getAvailableIDs().stream()
 			.map(DateTimeZone::forID).collect(Collectors.toList());
 
-	private static final String TIME_PATTERN = "([0-9]{1,2})(:[0-9]{1,2})?";
+	// Exception messages
+	private static final String CONTAIN_MORE_DATE_TIME = "String contain more date/time.. currently only one is supported..";
+	private static final String DOES_NOT_CONTAIN_ANY_DATES_OR_TIME = "String does not contain any dates or time..";
+
 	private static CountryRecord countryRecord = null;
 	private static DateTimeZone timeZone = null;
 
-	private static final List<String> SPECIFIERS = Arrays.asList("standard", "std", "time", "timezone", "zone", "day",
-			"light", "daylight", "savings");
-	private static final String YEAR_REGEX = "\\d{4}";
-
-	private DateTimeComponent delta = null;
+	private DateTimeComponent dtmComponent = null;
 	private String input = null;
 
-	public ParserResult parse(String input, Clock clock, String format) throws Exception {
+	/**
+	 * Natural language Date & Time Parser
+	 * 
+	 * @param input  input string containing date and time
+	 * @param clock  Base Date Time.
+	 * @param format Output format
+	 * @return ParserResult object
+	 * @throws Exception will be thrown on error conditions
+	 */
+	public ParserResult parse(String input, DateTime dateTime, String format) throws Exception {
 		ParserResult result = new ParserResult(format);
-		DateTime baseTime = new DateTime(clock.millis());
-		result.setFromDateTime(baseTime);
+		DateTime baseTime = null;
+		if (dateTime == null) {
+			baseTime = new DateTime();
+		} else {
+			baseTime = dateTime;
+		}
 		boolean past = false;
 		boolean next = false;
 
@@ -78,7 +114,9 @@ public class DateTimeNLPParser {
 				throw new Exception(INVALID_INPUT);
 			}
 
-			this.delta = new DateTimeComponent(baseTime, past);
+			this.dtmComponent = new DateTimeComponent(baseTime, past);
+
+			parseRelative();
 
 			parseHourMinuteSeconds();
 
@@ -94,14 +132,14 @@ public class DateTimeNLPParser {
 
 			parseMonthsDelta();
 
-			if (this.delta.noDateTimePresent()) {
+			if (this.dtmComponent.noDateTimePresent()) {
 				throw new Exception(DOES_NOT_CONTAIN_ANY_DATES_OR_TIME);
 			}
-//			if (this.delta.moreDateTimePresent()) {
-//				throw new Exception(CONTAIN_MORE_DATE_TIME);
-//			}
+			if (this.dtmComponent.moreDateTimePresent()) {
+				throw new Exception(CONTAIN_MORE_DATE_TIME);
+			}
 
-			result.putToDateTime("", this.delta.getDateTime());
+			result.setToDateTime(this.dtmComponent.getDateTime());
 
 		} catch (Exception e) {
 			log.error(e.getMessage());
@@ -111,24 +149,91 @@ public class DateTimeNLPParser {
 		return result;
 	}
 
+	private void parseRelative() throws Exception {
+		Pattern pattern = Pattern.compile(RELATIVE_REGEX);
+		Matcher matcher = pattern.matcher(this.input);
+		boolean match = false;
+		while (matcher.find()) {
+			if (!match) {
+				String relation = matcher.group(RELATION);
+				String number = matcher.group(NUMBER);
+				String decimal = matcher.group(DECIMAL);
+				String field = matcher.group(FIELD);
+				int muliplier = 0;
+
+				if (relation.equals(PLUS)) {
+					muliplier = 1;
+				} else if (relation.equals(MINUS)) {
+					muliplier = -1;
+				}
+
+				if (decimalandNotHour(decimal, field)) {
+
+					throw new Exception(INVALID_INPUT);
+				} else if (isHour(field)) {
+					int minutes = 0;
+					int hour = 0;
+					if (decimal != null) {
+						minutes = (int) (60 * Double.parseDouble(decimal.trim()));
+						this.dtmComponent.setMinuteDelta(minutes * muliplier);
+					}
+					if (number != null) {
+						hour = Integer.parseInt(number.trim());
+						this.dtmComponent.setHourDelta(hour * muliplier);
+					}
+
+				} else if (isDay(field)) {
+					if (number != null) {
+						this.dtmComponent.setDayDelta(Integer.parseInt(number.trim()) * muliplier);
+					}
+				} else if (isMonth(field)) {
+					if (number != null) {
+						this.dtmComponent.setMonthDelta(Integer.parseInt(number.trim()) * muliplier);
+					}
+				}
+
+			}
+
+			this.input = this.input.replaceAll("\\" + matcher.group(), "");
+		}
+
+	}
+
+	private boolean isMonth(String field) {
+		return (field.equals(MONTHS) || field.equals(MONTH) || field.equals(M));
+	}
+
+	private boolean isDay(String field) {
+		return (field.equals(DAYS) || field.equals(DAY) || field.equals(D));
+	}
+
+	private boolean decimalandNotHour(String decimal, String field) {
+		return decimal != null && !(field.equals(HOUR) || field.equals(HOURS) || field.equals(H) || field.equals(HR)
+				|| field.equals(HRS));
+	}
+
+	private boolean isHour(String field) {
+		return (field.equals(HOUR) || field.equals(HOURS) || field.equals(H) || field.equals(HR) || field.equals(HRS));
+	}
+
 	private void parseHourMinuteSeconds() throws Exception {
 		Pattern pattern = Pattern.compile(HOUR_MIN_REGEX);
 		Matcher matcher = pattern.matcher(this.input);
 		boolean match = false;
 		while (matcher.find()) {
 			if (!match) {
-				String hourString = matcher.group("hour");
+				String hourString = matcher.group(HOUR);
 				String minString = matcher.group("minute");
 				if (hourString != null) {
-					int hour = Integer.parseInt(matcher.group("hour").trim());
+					int hour = Integer.parseInt(matcher.group(HOUR).trim());
 					if (matcher.group("suffix") != null && matcher.group("suffix").trim().equals("pm")) {
 						hour += 12;
 					}
-					this.delta.setToHour(hour);
+					this.dtmComponent.setToHour(hour);
 				}
 
 				if (minString != null) {
-					this.delta.setToMin(Integer.parseInt(matcher.group("minute").replaceAll(":", "").trim()));
+					this.dtmComponent.setToMin(Integer.parseInt(matcher.group("minute").replaceAll(":", "").trim()));
 				}
 
 				this.input = this.input.replaceAll(matcher.group(), "");
@@ -147,7 +252,7 @@ public class DateTimeNLPParser {
 		boolean match = false;
 		while (matcher.find()) {
 			if (!match) {
-				this.delta.setToYear(Integer.parseInt(matcher.group()));
+				this.dtmComponent.setToYear(Integer.parseInt(matcher.group()));
 				this.input = this.input.replaceAll(matcher.group(), "");
 			} else {
 				throw new Exception(CONTAIN_MORE_DATE_TIME);
@@ -163,7 +268,7 @@ public class DateTimeNLPParser {
 		boolean match = false;
 		while (matcher.find()) {
 			if (!match) {
-				this.delta.setToMonth(matcher.group());
+				this.dtmComponent.setToMonth(matcher.group());
 				this.input = this.input.replaceAll(matcher.group(), "");
 			} else {
 				throw new Exception(CONTAIN_MORE_DATE_TIME);
@@ -179,7 +284,7 @@ public class DateTimeNLPParser {
 		boolean match = false;
 		while (matcher.find()) {
 			if (!match) {
-				this.delta.setToDate(Integer.parseInt(matcher.group().replaceAll("st", "").replaceAll("rd", "")
+				this.dtmComponent.setToDate(Integer.parseInt(matcher.group().replaceAll("st", "").replaceAll("rd", "")
 						.replaceAll("nd", "").replaceAll("th", "")));
 				this.input = this.input.replaceAll(matcher.group(), "");
 			} else {
@@ -188,21 +293,6 @@ public class DateTimeNLPParser {
 
 		}
 
-	}
-
-	private boolean parseRelativeHours(String input, ParserResult result, DateTime baseTime) throws Exception {
-		boolean match = false;
-		for (String key : DateTimeUnits.getInstance().getRelativeHoursMap().keySet()) {
-			if (hasMatch(key)) {
-				match = true;
-				int deltaHours = DateTimeUnits.getInstance().getRelativeHour(key);
-				DateTime newTime = baseTime.plusHours(deltaHours);
-				result.putToDateTime(key + ":", newTime);
-
-			}
-
-		}
-		return match;
 	}
 
 	private void parseRelativeDays() throws Exception {
@@ -219,14 +309,14 @@ public class DateTimeNLPParser {
 			}
 		}
 		if (matchedKey != null)
-			this.delta.setRelativeDayDelta(matchedKey);
+			this.dtmComponent.setRelativeDayDelta(matchedKey);
 
 	}
 
 	private void parseMonthsDelta() throws Exception {
 		for (String key : DateTimeUnits.getInstance().getMonthsMap().keySet()) {
 			if (hasMatch(key)) {
-				this.delta.setMonthDelta(key);
+				this.dtmComponent.setMonthDelta(key);
 			}
 
 		}
@@ -235,7 +325,7 @@ public class DateTimeNLPParser {
 	private void parseWeekDays() throws Exception {
 		for (String key : DateTimeUnits.getInstance().getWeekdayMap().keySet()) {
 			if (hasMatch(key)) {
-				this.delta.setDayDelta(key);
+				this.dtmComponent.setDayDelta(key);
 			}
 
 		}
@@ -264,7 +354,7 @@ public class DateTimeNLPParser {
 	 * @param input input string
 	 * @throws Exception Exceptions while parsing and processing the String
 	 */
-	public static String extractandCleanInput(String input) throws Exception {
+	private static String extractandCleanInput(String input) throws Exception {
 		input = input.toLowerCase();
 
 		timeZone = extractTimeZone(input);
@@ -360,7 +450,7 @@ public class DateTimeNLPParser {
 
 	private static boolean isTokenPartofTimeString(List<String> tokens, int i) {
 		return i > 0 && (tokens.get(i).equals("am") || tokens.get(i).equals("pm"))
-				&& tokens.get(i - 1).matches(TIME_PATTERN);
+				&& tokens.get(i - 1).matches(TIME_REGEX);
 	}
 
 	private static boolean tokenMatchesCountryCodeOrName(List<String> tokens, Entry<String, CountryRecord> entry) {
@@ -387,7 +477,7 @@ public class DateTimeNLPParser {
 	private static String stripAccentsAndSpecialCharacters(String input) throws Exception {
 
 		input = StringUtils.stripAccents(input);
-		input = RegExUtils.removePattern(input, "[^A-Za-z0-9\\s:]");
+		input = RegExUtils.removePattern(input, "[^A-Za-z0-9\\s\\+\\-:]");
 		return input;
 	}
 

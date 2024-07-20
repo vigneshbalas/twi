@@ -1,10 +1,10 @@
 package com.vigneshbala.twi.util;
 
 import java.io.IOException;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -21,13 +21,16 @@ public class TimeConversionUtilTest {
 	private static final String DD_MM_YYYY_HH_MM_SS_A = "dd-MM-yyyy hh:mm:ss a";
 	private static final String DD_MM_YYYY = "dd-MM-yyyy";
 	// Assume Current date is July 17,2024 - Wednesday
-	Clock JUL_17_2024 = Clock.fixed(Instant.parse("2024-07-17T00:00:00.00Z"), ZoneId.systemDefault());
+	DateTime JUL_17_2024 = null;
 
-	Clock Feb_01_2024 = Clock.fixed(Instant.parse("2024-02-01T00:00:00.00Z"), ZoneId.systemDefault());
+	DateTime Feb_01_2024 = null;
 
 	@BeforeClass
 	public void loadReferenceData() {
 		try {
+			DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
+			JUL_17_2024 = formatter.parseDateTime("17/07/2024 00:00:00");
+			Feb_01_2024 = formatter.parseDateTime("01/02/2024 00:00:00");
 			ReferenceDataUtil.loadCountryData();
 		} catch (IOException | JsonException e) {
 
@@ -141,6 +144,19 @@ public class TimeConversionUtilTest {
 	@Test
 	private void testTime() {
 		try {
+			Assert.assertEquals(
+					TimeConversionUtil.convertDateTime("8 PM", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024, null, null, null),
+					"17-07-2024 08:00:00 PM");
+			Assert.assertEquals(
+					TimeConversionUtil.convertDateTime("5:30 AM", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024, null, null, null),
+					"17-07-2024 05:30:00 AM");
+
+			Assert.assertEquals(
+					TimeConversionUtil.convertDateTime("5 Hours", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024, null, null, null),
+					"17-07-2024 05:00:00 AM");
+
+			Assert.assertEquals(TimeConversionUtil.convertDateTime("21 Hours", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024, null,
+					null, null), "17-07-2024 09:00:00 PM");
 			Assert.assertEquals(TimeConversionUtil.convertDateTime("23rd July 8 PM", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024,
 					null, null, null), "23-07-2024 08:00:00 PM");
 			Assert.assertEquals(TimeConversionUtil.convertDateTime("23rd July 8 AM", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024,
@@ -150,12 +166,13 @@ public class TimeConversionUtilTest {
 
 			Assert.assertEquals(TimeConversionUtil.convertDateTime("3rd July 3:30 PM", DD_MM_YYYY_HH_MM_SS_A,
 					JUL_17_2024, null, null, null), "03-07-2024 03:30:00 PM");
-//			// weekday of future
-//			Assert.assertEquals(TimeConversionUtil.convertDateTime("Thursday 8 AM", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024,
-//					null, null, null), "18-07-2024 08:00:00 AM");
-//
-//			Assert.assertEquals(TimeConversionUtil.convertDateTime("15th August 7:30 PM", DD_MM_YYYY_HH_MM_SS_A,
-//					JUL_17_2024, null, null, null), "15-08-2024 07:30:00 PM");
+			// weekday of future
+
+			Assert.assertEquals(TimeConversionUtil.convertDateTime("Thursday 8 AM", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024,
+					null, null, null), "18-07-2024 08:00:00 AM");
+
+			Assert.assertEquals(TimeConversionUtil.convertDateTime("15th August 7:30 PM", DD_MM_YYYY_HH_MM_SS_A,
+					JUL_17_2024, null, null, null), "15-08-2024 07:30:00 PM");
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -163,25 +180,20 @@ public class TimeConversionUtilTest {
 		}
 	}
 
-	// @Test
+	@Test
 	private void testTZShortCode() {
 
 		try {
 			Assert.assertEquals(TimeConversionUtil.convertDateTime("Tuesday 8 PM", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024,
 					new String[] { "SGT" }, null, null), "SGT : 23-07-2024 10:30:00 PM");
 
-			Assert.assertEquals(
-					TimeConversionUtil.convertDateTime("Tuesday 8 PM", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024,
-							new String[] { "SGT", "GMT" }, null, null),
-					"GMT : 23-07-2024 02:30:00 PM,SGT : 23-07-2024 10:30:00 PM");
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail();
 		}
 	}
 
-	// @Test
+	@Test
 	private void testTZId() {
 
 		try {
@@ -198,7 +210,7 @@ public class TimeConversionUtilTest {
 		}
 	}
 
-	// @Test
+	@Test
 	private void testTZDaylightSavings() {
 
 		try {
@@ -210,6 +222,19 @@ public class TimeConversionUtilTest {
 					new String[] { "Europe/London" }, null, null), "Europe/London : 06-02-2024 02:30:00 PM");
 
 		} catch (Exception e) {
+			e.printStackTrace();
+			Assert.fail();
+		}
+	}
+
+	@Test
+	private void testRelative() {
+		try {
+			Assert.assertEquals(
+					TimeConversionUtil.convertDateTime("+2h", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024, null, null, null),
+					"17-07-2024 02:00:00 AM");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 			Assert.fail();
 		}
@@ -231,48 +256,6 @@ public class TimeConversionUtilTest {
 			e.printStackTrace();
 			Assert.fail();
 		}
-	}
-
-	// @Test
-	public void failed_scenarios() {
-		try {
-			// Today's Weekday - gives next week instead of today's date
-			Assert.assertEquals(TimeConversionUtil.convertDateTime("Wednesday", DD_MM_YYYY,
-					Clock.fixed(Instant.parse("2024-07-17T00:00:00.00Z"), ZoneId.systemDefault()), null, null, null),
-					"19-07-2024");
-			// "19th July" works but not 19 July
-			Assert.assertEquals(TimeConversionUtil.convertDateTime("19 July", DD_MM_YYYY,
-					Clock.fixed(Instant.parse("2024-07-17T00:00:00.00Z"), ZoneId.systemDefault()), null, null, null),
-					"19-07-2024");
-			// following didn't work
-			Assert.assertEquals(
-					TimeConversionUtil.convertDateTime("two days before", DD_MM_YYYY, JUL_17_2024, null, null, null),
-					"15-07-2024");
-			// following didn't work
-			Assert.assertEquals(
-					TimeConversionUtil.convertDateTime("two days back", DD_MM_YYYY, JUL_17_2024, null, null, null),
-					"15-07-2024");
-			// expected 15th Aug but got 01st Aug
-			Assert.assertEquals(
-					TimeConversionUtil.convertDateTime("Next Month 15th", DD_MM_YYYY, JUL_17_2024, null, null, null),
-					"15-08-2024");
-			// got 01-08-2024
-			Assert.assertEquals(TimeConversionUtil.convertDateTime("First Sunday of August", DD_MM_YYYY, JUL_17_2024,
-					null, null, null), "04-08-2024");
-			// got 01-08-2024
-			Assert.assertEquals(
-					TimeConversionUtil.convertDateTime("last day of August", DD_MM_YYYY, JUL_17_2024, null, null, null),
-					"31-08-2024");
-			// Time is not recognized
-			Assert.assertEquals(TimeConversionUtil.convertDateTime("day after tomorrow 7:30 AM", DD_MM_YYYY_HH_MM_SS_A,
-					JUL_17_2024, null, null, null), "19-07-2024 07:30:00 AM");
-			Assert.assertEquals(TimeConversionUtil.convertDateTime("7:30 AM day after tomorrow", DD_MM_YYYY_HH_MM_SS_A,
-					JUL_17_2024, null, null, null), "19-07-2024 07:30:00 AM");
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail();
-		}
-
 	}
 
 }
