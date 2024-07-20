@@ -45,7 +45,7 @@ public class DateTimeNLPParser {
 
 	private static final String MONTH_REGEX = "jan(?:uary)|feb(?:raury)|mar(?:ch)|apr(?:il)|may|jun(?:e)|jul(?:y)|aug(?:ust)|sep(?:tember)|oct(?:ober)|nov(?:ember)|dec(?:ember)";
 
-	private static final String DATE_REGEX = "(0?[1-9]|[1-2][0-9]|[3][0-1])(th|rd|nd|st)?";
+	private static final String DATE_REGEX = "\\d{1,2}(st|rd|th|nd|\\s)?";
 
 	private static final List<DateTimeZone> availableTimeZones = DateTimeZone.getAvailableIDs().stream()
 			.map(DateTimeZone::forID).collect(Collectors.toList());
@@ -56,7 +56,7 @@ public class DateTimeNLPParser {
 
 	private static final List<String> SPECIFIERS = Arrays.asList("standard", "std", "time", "timezone", "zone", "day",
 			"light", "daylight", "savings");
-	private static final String YEAR_REGEX = "(19|20)\\d{2}";
+	private static final String YEAR_REGEX = "\\d{4}";
 
 	private DateTimeComponent delta = null;
 	private String input = null;
@@ -90,24 +90,24 @@ public class DateTimeNLPParser {
 
 			this.delta = new DateTimeComponent(baseTime, past);
 
-			parseDate();
-
+			parseYear();
+			
 			parseMonth();
 
-			parseYear();
+			parseDate();
 
 			parseWeekDays();
 
-			parseMonths();
+			parseMonthsDelta();
 
 			parseRelativeDays();
 
 			if (this.delta.noDateTimePresent()) {
 				throw new Exception(DOES_NOT_CONTAIN_ANY_DATES_OR_TIME);
 			}
-			if (this.delta.moreDateTimePresent()) {
-				throw new Exception(CONTAIN_MORE_DATE_TIME);
-			}
+//			if (this.delta.moreDateTimePresent()) {
+//				throw new Exception(CONTAIN_MORE_DATE_TIME);
+//			}
 
 			result.putToDateTime("", this.delta.getDateTime());
 
@@ -124,9 +124,10 @@ public class DateTimeNLPParser {
 		Pattern pattern = Pattern.compile(YEAR_REGEX);
 		Matcher matcher = pattern.matcher(this.input);
 		boolean match = false;
-		while (matcher.hasMatch()) {
+		while (matcher.find()) {
 			if (!match) {
 				this.delta.setToYear(Integer.parseInt(matcher.group()));
+				this.input.replaceAll(matcher.group(), "");
 			} else {
 				throw new Exception(CONTAIN_MORE_DATE_TIME);
 			}
@@ -139,9 +140,10 @@ public class DateTimeNLPParser {
 		Pattern pattern = Pattern.compile(MONTH_REGEX);
 		Matcher matcher = pattern.matcher(this.input);
 		boolean match = false;
-		while (matcher.hasMatch()) {
+		while (matcher.find()) {
 			if (!match) {
 				this.delta.setToMonth(matcher.group());
+				this.input.replaceAll(matcher.group(), "");
 			} else {
 				throw new Exception(CONTAIN_MORE_DATE_TIME);
 			}
@@ -156,7 +158,9 @@ public class DateTimeNLPParser {
 		boolean match = false;
 		while (matcher.find()) {
 			if (!match) {
-				this.delta.setToDate(Integer.parseInt(matcher.group()));
+				this.delta.setToDate(Integer.parseInt(matcher.group().replaceAll("st", "").replaceAll("rd", "")
+						.replaceAll("nd", "").replaceAll("th", "")));
+				this.input = this.input.replaceAll(matcher.group(), "");
 			} else {
 				throw new Exception(CONTAIN_MORE_DATE_TIME);
 			}
@@ -198,7 +202,7 @@ public class DateTimeNLPParser {
 
 	}
 
-	private void parseMonths() throws Exception {
+	private void parseMonthsDelta() throws Exception {
 		for (String key : DateTimeUnits.getInstance().getMonthsMap().keySet()) {
 			if (hasMatch(key, this.input)) {
 				this.delta.setMonthDelta(key);
@@ -379,5 +383,15 @@ public class DateTimeNLPParser {
 			match = true;
 		}
 		return match;
+	}
+
+	public static void main(String[] args) {
+		// Pattern pattern = Pattern.compile("\\d{1,2}(st|rd|th|nd|\\s)?");
+		Pattern pattern = Pattern.compile("jan(?:uary)|feb(?:raury)|mar(?:ch)|apr(?:il)|may|jun(?:e)|jul(?:y)|aug(?:ust)|sep(?:tember)|oct(?:ober)|nov(?:ember)|dec(?:ember)");
+		Matcher matcher = pattern.matcher("july");
+
+		while (matcher.find()) {
+			System.out.println(">>" + matcher.group());
+		}
 	}
 }

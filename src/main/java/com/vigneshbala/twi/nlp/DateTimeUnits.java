@@ -29,10 +29,11 @@ public class DateTimeUnits {
 		weekdayMap.put("sat", 6);
 
 		
-		monthsMap.put("jan", 0);
-		monthsMap.put("feb", 1);
-		monthsMap.put("mar", 2);
-		monthsMap.put("apr", 3);
+		monthsMap.put("jan", 1);
+		monthsMap.put("feb", 2);
+		monthsMap.put("mar", 3);
+		monthsMap.put("apr", 4);
+		monthsMap.put("may", 5);
 		monthsMap.put("jun", 6);
 		monthsMap.put("jul", 7);
 		monthsMap.put("aug", 8);

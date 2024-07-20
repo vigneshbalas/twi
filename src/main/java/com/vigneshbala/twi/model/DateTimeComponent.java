@@ -1,8 +1,12 @@
 package com.vigneshbala.twi.model;
 
+import java.time.Month;
+import java.util.Arrays;
+import java.util.Optional;
+
 import org.joda.time.DateTime;
-import org.joda.time.Months;
-import org.joda.time.Period;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import com.vigneshbala.twi.nlp.DateTimeUnits;
 
@@ -29,7 +33,7 @@ public class DateTimeComponent {
 		this.isPast = isPast;
 		this.toDate = baseTime.dayOfMonth().get();
 		this.toMonth = baseTime.monthOfYear().get();
-		this.toMonth = baseTime.getYear();
+		this.toYear = baseTime.getYear();
 
 	}
 
@@ -48,7 +52,7 @@ public class DateTimeComponent {
 	}
 
 	public void setToMonth(String toMonth) {
-		this.toMonth = Months.parseMonths(toMonth).getMonths();
+		this.toMonth = toMonthNumber(toMonth);
 		this.countAbsoluteDateTimes++;
 		this.isDateTimePresent = true;
 	}
@@ -148,14 +152,35 @@ public class DateTimeComponent {
 	public DateTime getDateTime() {
 		DateTime result = null;
 		if (countAbsoluteDateTimes > 0) {
-			Period period = new Period().withMonths(toMonth).withDays(toDate).withYears(toYear);
-			result = new DateTime(period);
+			DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy");
+			result = formatter.parseDateTime(toDate + "/" + toMonth + "/" + toYear);
+			if (result.getMonthOfYear() < baseTime.getMonthOfYear()) {
+				result = result.plusYears(1);
+				if (result.getDayOfMonth() < baseTime.getDayOfMonth()) {
+					result = result.plusMonths(1);
+				}
+
+			}
 
 		} else {
 			result = this.baseTime.plusDays(dayDelta).plusMonths(monthDelta).plusYears(yearDelta)
 					.plusMinutes(minuteDelta).plusHours(hourDelta);
 		}
 		return result;
+	}
+
+	private static int toMonthNumber(String monthName) {
+		int result;
+		if (monthName.length() > 3) {
+			result = Month.valueOf(monthName.toUpperCase()).getValue();
+		} else {
+			Optional<Month> monthOptional = Arrays.stream(Month.values())
+					.filter(month -> month.name().substring(0, 3).equalsIgnoreCase(monthName)).findFirst();
+
+			result = monthOptional.orElseThrow(IllegalArgumentException::new).getValue();
+		}
+		return result;
+
 	}
 
 }
