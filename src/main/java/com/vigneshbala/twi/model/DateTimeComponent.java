@@ -173,7 +173,6 @@ public class DateTimeComponent {
 
 	public void setMinuteDelta(int minuteDelta) {
 		this.minuteDelta = minuteDelta;
-		this.countDeltas++;
 		this.isDateTimePresent = true;
 	}
 

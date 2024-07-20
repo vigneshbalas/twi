@@ -234,6 +234,25 @@ public class TimeConversionUtilTest {
 			Assert.assertEquals(
 					TimeConversionUtil.convertDateTime("+2h", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024, null, null, null),
 					"17-07-2024 02:00:00 AM");
+			Assert.assertEquals(
+					TimeConversionUtil.convertDateTime("+2.5h", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024, null, null, null),
+					"17-07-2024 02:30:00 AM");
+			
+			Assert.assertEquals(
+					TimeConversionUtil.convertDateTime("+2hours", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024, null, null, null),
+					"17-07-2024 02:00:00 AM");
+			Assert.assertEquals(
+					TimeConversionUtil.convertDateTime("+2hour", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024, null, null, null),
+					"17-07-2024 02:00:00 AM");
+			Assert.assertEquals(
+					TimeConversionUtil.convertDateTime("+2hr", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024, null, null, null),
+					"17-07-2024 02:00:00 AM");
+			Assert.assertEquals(
+					TimeConversionUtil.convertDateTime("+2hrs", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024, null, null, null),
+					"17-07-2024 02:00:00 AM");
+			Assert.assertEquals(
+					TimeConversionUtil.convertDateTime("-10d", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024, null, null, null),
+					"07-07-2024 12:00:00 AM");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

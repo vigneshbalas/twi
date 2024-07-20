@@ -67,7 +67,7 @@ public class DateTimeNLPParser {
 	private static final String MONTH_REGEX = "jan(?:uary)|feb(?:raury)|mar(?:ch)|apr(?:il)|may|jun(?:e)|jul(?:y)|aug(?:ust)|sep(?:tember)|oct(?:ober)|nov(?:ember)|dec(?:ember)";
 	private static final String DATE_REGEX = "\\d{1,2}(st|rd|th|nd|\\s)?";
 	private static final String HOUR_MIN_REGEX = "(?<hour>\\d{1,2})\\s?(?<minute>:?\\d{1,2})?\\s?(?<suffix>hours|hrs|am|pm)?\\b";
-	private static final String RELATIVE_REGEX = "(?<relation>\\+|\\-)(?<number>\\d{1,2}(?<decimal>.\\d{1,2})?)(?<field>days|day|d|months|month|m|hrs|h|hours|hr|min|m|mins)?";
+	private static final String RELATIVE_REGEX = "(?<relation>\\+|\\-)(?<number>\\d{1,2})(?<decimal>\\.\\d{1,2})?(?<field>days|day|d|months|month|m|hrs|h|hours|hr|min|m|mins)?";
 	private static final String TIME_REGEX = "([0-9]{1,2})(:[0-9]{1,2})?";
 	private static final String YEAR_REGEX = "\\d{4}";
 
@@ -477,7 +477,7 @@ public class DateTimeNLPParser {
 	private static String stripAccentsAndSpecialCharacters(String input) throws Exception {
 
 		input = StringUtils.stripAccents(input);
-		input = RegExUtils.removePattern(input, "[^A-Za-z0-9\\s\\+\\-:]");
+		input = RegExUtils.removePattern(input, "[^A-Za-z0-9\\s\\+\\-\\.:]");
 		return input;
 	}
 
