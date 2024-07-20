@@ -143,7 +143,13 @@ public class TimeConversionUtilTest {
 		try {
 			Assert.assertEquals(TimeConversionUtil.convertDateTime("23rd July 8 PM", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024,
 					null, null, null), "23-07-2024 08:00:00 PM");
-
+			Assert.assertEquals(TimeConversionUtil.convertDateTime("23rd July 8 AM", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024,
+					null, null, null), "23-07-2024 08:00:00 AM");
+			Assert.assertEquals(TimeConversionUtil.convertDateTime("23rd July 7:30 AM", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024,
+					null, null, null), "23-07-2024 07:30:00 AM");
+			
+			Assert.assertEquals(TimeConversionUtil.convertDateTime("3rd July 3:30 PM", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024,
+					null, null, null), "03-07-2024 03:30:00 PM");
 //			// weekday of future
 //			Assert.assertEquals(TimeConversionUtil.convertDateTime("Thursday 8 AM", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024,
 //					null, null, null), "18-07-2024 08:00:00 AM");

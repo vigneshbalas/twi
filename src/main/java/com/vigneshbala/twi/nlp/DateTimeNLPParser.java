@@ -128,7 +128,7 @@ public class DateTimeNLPParser {
 				}
 
 				if (minString != null) {
-					this.delta.setToMin(Integer.parseInt(matcher.group("minute").trim()));
+					this.delta.setToMin(Integer.parseInt(matcher.group("minute").replaceAll(":", "").trim()));
 				}
 
 				this.input = this.input.replaceAll(matcher.group(), "");
