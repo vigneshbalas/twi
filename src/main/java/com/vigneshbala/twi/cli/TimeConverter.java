@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.github.cliftonlabs.json_simple.JsonException;
@@ -24,14 +22,13 @@ import picocli.CommandLine.Parameters;
  */
 @Command(name = "twi", mixinStandardHelpOptions = true, version = "twi 1.0.0", description = "Natural language date and time processor and converter")
 public class TimeConverter implements Callable<Integer> {
-	private static Logger log = LoggerFactory.getLogger(TimeConverter.class);
 	static {
 		try {
 			SLF4JBridgeHandler.removeHandlersForRootLogger();
 			SLF4JBridgeHandler.install();
 
 			ReferenceDataUtil.loadCountryData();
-			log.debug("Reference Data load Complete...");
+			System.out.println("Reference Data load Complete...");
 		} catch (IOException | JsonException e) {
 			e.printStackTrace();
 			// exit if reference data could not be loaded

@@ -22,9 +22,9 @@ import com.vigneshbala.twi.model.CountryRecord;
  */
 public class ReferenceDataUtil {
 
-	private static final String COUNTRY_NAMES_JSON = "referencedata/country-names.json";
-	private static final String COUNTRY_CODES_JSON = "referencedata/country-codes.json";
-	private static final String COUNTRY_TIME_ZONES_JSON = "referencedata/country-timezones.json";
+	private static final String COUNTRY_NAMES_JSON = "/referencedata/country-names.json";
+	private static final String COUNTRY_CODES_JSON = "/referencedata/country-codes.json";
+	private static final String COUNTRY_TIME_ZONES_JSON = "/referencedata/country-timezones.json";
 
 	private static final List<String> TIME_ZONE_SPECIFIERS = Arrays.asList("standard", "std", "time", "timezone",
 			"zone", "day", "light", "daylight", "savings");
@@ -89,7 +89,7 @@ public class ReferenceDataUtil {
 	}
 
 	private static FileReader getReader(String filePath) throws FileNotFoundException {
-		return new FileReader(ReferenceDataUtil.class.getClassLoader().getResource(filePath).getFile());
+		return new FileReader(ReferenceDataUtil.class.getResource(filePath).getFile());
 	}
 
 	public static Map<String, CountryRecord> getCountryMap() {

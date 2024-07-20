@@ -9,13 +9,17 @@
 	<description>A Command Line utility to quickly convert the natural language
 		time from one zone to another. The name twi is Yoda speak for Time What
 		is?</description>
+
 	<properties>
+		<maven.compiler.source>9</maven.compiler.source>
+		<maven.compiler.target>9</maven.compiler.target>
 		<com.zoho.hawking.version>0.1.8</com.zoho.hawking.version>
 		<info.picocli.version>4.7.6</info.picocli.version>
 		<org.slf4j.jul-to-slf4j.version>2.1.0-alpha1</org.slf4j.jul-to-slf4j.version>
 		<ch.qos.logback.logback-classic.version>1.5.6</ch.qos.logback.logback-classic.version>
 		<com.github.cliftonlabs.json-simple.version>4.0.1</com.github.cliftonlabs.json-simple.version>
 		<joda-time.joda-time.version>2.12.7</joda-time.joda-time.version>
+		<org.testng.testng.version>7.10.2</org.testng.testng.version>
 	</properties>
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/joda-time/joda-time -->
@@ -30,8 +34,6 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.14.0</version>
 		</dependency>
-
-
 		<dependency>
 			<groupId>info.picocli</groupId>
 			<artifactId>picocli</artifactId>
@@ -61,10 +63,62 @@
 		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
-			<version>7.10.2</version>
+			<version>${org.testng.testng.version}</version>
 			<scope>test</scope>
 		</dependency>
-
-
 	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<outputDirectory>target/jmods</outputDirectory>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.panteleyev</groupId>
+				<artifactId>jpackage-maven-plugin</artifactId>
+				<version>1.6.4</version>
+
+				<!-- Common part of configuration -->
+				<configuration>
+					<name>twi</name>
+					<appVersion>${project.version}</appVersion>
+					<vendor>com.vigneshbala</vendor>
+					<module>twi</module>
+					<modulePaths>
+						<modulePath>target/jmods</modulePath>
+					</modulePaths>
+					<destination>target/dist</destination>
+					<javaOptions>
+						<option>--enable-preview</option>
+						<option>-Dfile.encoding=UTF-8</option>
+					</javaOptions>
+				</configuration>
+				<executions>
+					<execution>
+						<id>mac</id>
+						<configuration>
+							<icon>icons/icons.icns</icon>
+						</configuration>
+					</execution>
+					<execution>
+						<id>win</id>
+						<configuration>
+							<icon>icons/icon.ico</icon>
+							<winMenu>true</winMenu>
+						</configuration>
+					</execution>
+					<execution>
+						<id>linux</id>
+						<configuration>
+							<type>APP_IMAGE</type>
+							<icon>icons/icon.png</icon>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
