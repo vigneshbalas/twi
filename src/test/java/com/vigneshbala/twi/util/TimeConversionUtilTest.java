@@ -20,7 +20,8 @@ public class TimeConversionUtilTest {
 
 	private static final String DD_MM_YYYY_HH_MM_SS_A = "dd-MM-yyyy hh:mm:ss a";
 	private static final String DD_MM_YYYY = "dd-MM-yyyy";
-	// Assume Current date is July 17,2024 - Wednesday
+
+	// Test Dates injected as current dates for repeatable tests
 	DateTime JUL_17_2024 = null;
 
 	DateTime Feb_01_2024 = null;
@@ -240,7 +241,7 @@ public class TimeConversionUtilTest {
 		}
 	}
 
-	// @Test
+	@Test
 	private void testOffsetDecimal() {
 
 		try {
@@ -250,7 +251,7 @@ public class TimeConversionUtilTest {
 					null, null, new String[] { "+8.5" }), "+8.5 :23-07-2024 11:00:00 PM");
 
 			Assert.assertEquals(TimeConversionUtil.convertDateTime("Tuesday 8 PM", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024,
-					null, null, new String[] { "-8" }), "-8 :23-07-2024 05:30:00 PM");
+					null, null, new String[] { "-8" }), "-8 :23-07-2024 06:30:00 AM");
 
 		} catch (Exception e) {
 			e.printStackTrace();
