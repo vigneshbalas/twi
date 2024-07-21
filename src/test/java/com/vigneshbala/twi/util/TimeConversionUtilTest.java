@@ -1,6 +1,7 @@
 package com.vigneshbala.twi.util;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -9,8 +10,6 @@ import java.time.format.DateTimeFormatter;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import com.github.cliftonlabs.json_simple.JsonException;
 
 /**
  * (c) 2024 Vignesh Balasubramanian
@@ -35,7 +34,7 @@ public class TimeConversionUtilTest {
 
 			Feb_01_2024 = LocalDate.parse("01/02/2024 00:00:00", formatter).atStartOfDay(ZoneId.systemDefault());
 			ReferenceDataUtil.loadCountryData();
-		} catch (IOException | JsonException e) {
+		} catch (IOException | URISyntaxException e) {
 
 			e.printStackTrace();
 		}

@@ -1,12 +1,12 @@
 package com.vigneshbala.twi.cli;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
 import java.util.concurrent.Callable;
 
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import com.github.cliftonlabs.json_simple.JsonException;
 import com.vigneshbala.twi.util.ReferenceDataUtil;
 import com.vigneshbala.twi.util.TimeConversionUtil;
 
@@ -29,7 +29,7 @@ public class TimeConverter implements Callable<Integer> {
 
 			ReferenceDataUtil.loadCountryData();
 			System.out.println("Reference Data load Complete...");
-		} catch (IOException | JsonException e) {
+		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
 			// exit if reference data could not be loaded
 			System.exit(0);
@@ -54,6 +54,7 @@ public class TimeConverter implements Callable<Integer> {
 	@Override
 	public Integer call() throws Exception {
 		Integer exitCode = 0;
+		System.out.println(input);
 		try {
 			System.out.println(
 					TimeConversionUtil.convertDateTime(input, format, ZonedDateTime.now(), zones, null, offsets));

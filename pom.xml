@@ -13,20 +13,21 @@
 	<properties>
 		<maven.compiler.source>9</maven.compiler.source>
 		<maven.compiler.target>9</maven.compiler.target>
-		<com.zoho.hawking.version>0.1.8</com.zoho.hawking.version>
+		<org.apache.commons.commons-lang3.version>3.14.0</org.apache.commons.commons-lang3.version>
 		<info.picocli.version>4.7.6</info.picocli.version>
 		<org.slf4j.jul-to-slf4j.version>2.1.0-alpha1</org.slf4j.jul-to-slf4j.version>
 		<ch.qos.logback.logback-classic.version>1.5.6</ch.qos.logback.logback-classic.version>
-		<com.github.cliftonlabs.json-simple.version>4.0.1</com.github.cliftonlabs.json-simple.version>
+		<org.json.json.version>20240303</org.json.json.version>
 		<joda-time.joda-time.version>2.12.7</joda-time.joda-time.version>
 		<org.testng.testng.version>7.10.2</org.testng.testng.version>
 	</properties>
 	<dependencies>
+
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.14.0</version>
+			<version>${org.apache.commons.commons-lang3.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>info.picocli</groupId>
@@ -45,13 +46,13 @@
 			<artifactId>logback-classic</artifactId>
 			<version>${ch.qos.logback.logback-classic.version}</version>
 		</dependency>
-		<!--
-		https://mvnrepository.com/artifact/com.github.cliftonlabs/json-simple -->
+		<!-- https://mvnrepository.com/artifact/org.json/json -->
 		<dependency>
-			<groupId>com.github.cliftonlabs</groupId>
-			<artifactId>json-simple</artifactId>
-			<version>${com.github.cliftonlabs.json-simple.version}</version>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>${org.json.json.version}</version>
 		</dependency>
+
 
 		<!-- https://mvnrepository.com/artifact/org.testng/testng -->
 		<dependency>
