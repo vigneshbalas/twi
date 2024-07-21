@@ -69,75 +69,42 @@ Following are the supported input grammars:
 
 Below table gives a overview of some of the above test outcomes
 
-| # | Current Date Time | Current Weekday | Input String | Output | Remarks |
-
+| #  | Current Date Time   | Current Weekday | Input String         | Output                 | Remarks                                     |
 | -- | ------------------- | --------------- | -------------------- | ---------------------- | ------------------------------------------- |
+| 1  | 17/07/2024 00:00:00 | Wednesday       | Tuesday              | 23-07-2024             |                                             |
+| 2  | 17/07/2024 00:00:00 | Wednesday       | Thursday             | 18-07-2024             |                                             |
+| 3  | 17/07/2024 00:00:00 | Wednesday       | Today                | 17-07-2024             |                                             |
+| 4  | 17/07/2024 00:00:00 | Wednesday       | Tomorrow             | 18-07-2024             |                                             |
+| 5  | 17/07/2024 00:00:00 | Wednesday       | Yesterday            | 16-07-2024             |                                             |
+| 6  | 17/07/2024 00:00:00 | Wednesday       | Day Before Yesterday | 15-07-2024             |                                             |
+| 7  | 17/07/2024 00:00:00 | Wednesday       | Day After Tomorrow   | 19-07-2024             |                                             |
+| 8  | 17/07/2024 00:00:00 | Wednesday       | last Monday          | 15-07-2024             |                                             |
+| 9  | 17/07/2024 00:00:00 | Wednesday       | past Monday          | 15-07-2024             |                                             |
+| 10 | 17/07/2024 00:00:00 | Wednesday       | this past Monday     | 15-07-2024             |                                             |
+| 11 | 17/07/2024 00:00:00 | Wednesday       | this Monday          | 22-07-2024             |                                             |
+| 12 | 17/07/2024 00:00:00 | Wednesday       | coming Monday        | 22-07-2024             |                                             |
+| 13 | 17/07/2024 00:00:00 | Wednesday       | August               | 17-08-2024             |                                             |
+| 14 | 17/07/2024 00:00:00 | Wednesday       | January              | 17-01-2025             |                                             |
+| 15 | 17/07/2024 00:00:00 | Wednesday       | July                 | 17-07-2024             |                                             |
+| 16 | 17/07/2024 00:00:00 | Wednesday       | July 19th            | 19-07-2024             |                                             |
+| 17 | 17/07/2024 00:00:00 | Wednesday       | 19th July            | 19-07-2024             |                                             |
+| 18 | 17/07/2024 00:00:00 | Wednesday       | August 15th          | 15-08-2024             |                                             |
+| 19 | 17/07/2024 00:00:00 | Wednesday       | 15th August          | 15-08-2024             |                                             |
+| 20 | 17/07/2024 00:00:00 | Wednesday       | September            | 17-09-2024             |                                             |
+| 21 | 17/07/2024 00:00:00 | Wednesday       | 8 PM                 | 17-07-2024 08:00:00 PM |                                             |
+| 22 | 17/07/2024 00:00:00 | Wednesday       | 05:30 AM             | 17-07-2024 05:30:00 AM |                                             |
+| 23 | 17/07/2024 00:00:00 | Wednesday       | 5 Hours              | 17-07-2024 05:00:00 AM |                                             |
+| 24 | 17/07/2024 00:00:00 | Wednesday       | 21 Hours             | 17-07-2024 09:00:00 PM |                                             |
+| 25 | 17/07/2024 00:00:00 | Wednesday       | 23rd July 8 PM       | 23-07-2024 08:00:00 PM |                                             |
+| 26 | 17/07/2024 00:00:00 | Wednesday       | 23rd July 8 AM       | 23-07-2024 08:00:00 AM |                                             |
+| 27 | 17/07/2024 00:00:00 | Wednesday       | 23rd July 7:30 AM    | 23-07-2024 07:30:00 AM |                                             |
+| 28 | 17/07/2024 00:00:00 | Wednesday       | 3rd July 3:30 PM     | 03-07-2024 03:30:00 PM |                                             |
+| 29 | 17/07/2024 00:00:00 | Wednesday       | Thursday 8 AM        | 18-07-2024 08:00:00 AM |                                             |
+| 30 | 17/07/2024 00:00:00 | Wednesday       | 15th August 7:30 PM  | 15-08-2024 07:30:00 PM |                                             |
+| 31 | 17/07/2024 00:00:00 | Wednesday       | +2h                  | 17-07-2024 02:00:00 AM | Can use hr,hrs,hour and hours in place of h |
+| 33 | 17/07/2024 00:00:00 | Wednesday       | +2.5h                | 17-07-2024 02:30:00 AM | Can use hr,hrs,hour and hours in place of h |
+| 33 | 17/07/2024 00:00:00 | Wednesday       | \-10d                | 07-07-2024 12:00:00 AM | negative d-day, can use day,days as well    |
 
-| 1 | 17/07/2024 00:00:00 | Wednesday | Tuesday | 23-07-2024 | |
-
-| 2 | 17/07/2024 00:00:00 | Wednesday | Thursday | 18-07-2024 | |
-
-| 3 | 17/07/2024 00:00:00 | Wednesday | Today | 17-07-2024 | |
-
-| 4 | 17/07/2024 00:00:00 | Wednesday | Tomorrow | 18-07-2024 | |
-
-| 5 | 17/07/2024 00:00:00 | Wednesday | Yesterday | 16-07-2024 | |
-
-| 6 | 17/07/2024 00:00:00 | Wednesday | Day Before Yesterday | 15-07-2024 | |
-
-| 7 | 17/07/2024 00:00:00 | Wednesday | Day After Tomorrow | 19-07-2024 | |
-
-| 8 | 17/07/2024 00:00:00 | Wednesday | last Monday | 15-07-2024 | |
-
-| 9 | 17/07/2024 00:00:00 | Wednesday | past Monday | 15-07-2024 | |
-
-| 10 | 17/07/2024 00:00:00 | Wednesday | this past Monday | 15-07-2024 | |
-
-| 11 | 17/07/2024 00:00:00 | Wednesday | this Monday | 22-07-2024 | |
-
-| 12 | 17/07/2024 00:00:00 | Wednesday | coming Monday | 22-07-2024 | |
-
-| 13 | 17/07/2024 00:00:00 | Wednesday | August | 17-08-2024 | |
-
-| 14 | 17/07/2024 00:00:00 | Wednesday | January | 17-01-2025 | |
-
-| 15 | 17/07/2024 00:00:00 | Wednesday | July | 17-07-2024 | |
-
-| 16 | 17/07/2024 00:00:00 | Wednesday | July 19th | 19-07-2024 | |
-
-| 17 | 17/07/2024 00:00:00 | Wednesday | 19th July | 19-07-2024 | |
-
-| 18 | 17/07/2024 00:00:00 | Wednesday | August 15th | 15-08-2024 | |
-
-| 19 | 17/07/2024 00:00:00 | Wednesday | 15th August | 15-08-2024 | |
-
-| 20 | 17/07/2024 00:00:00 | Wednesday | September | 17-09-2024 | |
-
-| 21 | 17/07/2024 00:00:00 | Wednesday | 8 PM | 17-07-2024 08:00:00 PM | |
-
-| 22 | 17/07/2024 00:00:00 | Wednesday | 05:30 AM | 17-07-2024 05:30:00 AM | |
-
-| 23 | 17/07/2024 00:00:00 | Wednesday | 5 Hours | 17-07-2024 05:00:00 AM | |
-
-| 24 | 17/07/2024 00:00:00 | Wednesday | 21 Hours | 17-07-2024 09:00:00 PM | |
-
-| 25 | 17/07/2024 00:00:00 | Wednesday | 23rd July 8 PM | 23-07-2024 08:00:00 PM | |
-
-| 26 | 17/07/2024 00:00:00 | Wednesday | 23rd July 8 AM | 23-07-2024 08:00:00 AM | |
-
-| 27 | 17/07/2024 00:00:00 | Wednesday | 23rd July 7:30 AM | 23-07-2024 07:30:00 AM | |
-
-| 28 | 17/07/2024 00:00:00 | Wednesday | 3rd July 3:30 PM | 03-07-2024 03:30:00 PM | |
-
-| 29 | 17/07/2024 00:00:00 | Wednesday | Thursday 8 AM | 18-07-2024 08:00:00 AM | |
-
-| 30 | 17/07/2024 00:00:00 | Wednesday | 15th August 7:30 PM | 15-08-2024 07:30:00 PM | |
-
-| 31 | 17/07/2024 00:00:00 | Wednesday | +2h | 17-07-2024 02:00:00 AM | Can use hr,hrs,hour and hours in place of h |
-
-| 33 | 17/07/2024 00:00:00 | Wednesday | +2.5h | 17-07-2024 02:30:00 AM | Can use hr,hrs,hour and hours in place of h |
-
-| 33 | 17/07/2024 00:00:00 | Wednesday | \-10d | 07-07-2024 12:00:00 AM | negative d-day, can use day,days as well |
 
   
 
