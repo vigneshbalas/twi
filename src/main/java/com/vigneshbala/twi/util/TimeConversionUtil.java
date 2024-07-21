@@ -173,14 +173,14 @@ public class TimeConversionUtil {
 	}
 
 	private static boolean matchesTZCodeOrName(String tzString, ZoneId zone) {
-		return tzString.contains(zone.getDisplayName(TextStyle.SHORT_STANDALONE, Locale.getDefault()))
-				|| tzString.contains(zone.getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault()))
-				|| tzString.contains(zone.getId());
+		return tzString.equals(zone.getDisplayName(TextStyle.SHORT_STANDALONE, Locale.getDefault()))
+				|| tzString.equals(zone.getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault()))
+				|| tzString.equals(zone.getId());
 	}
 
 	private static boolean matchesCountryCodeOrName(String countryString, CountryRecord country) {
-		return countryString.contains(country.getAlpha2Code()) || countryString.contains(country.getAlpha3Code())
-				|| countryString.contains(country.getCountryName());
+		return countryString.equals(country.getAlpha2Code()) || countryString.equals(country.getAlpha3Code())
+				|| countryString.equals(country.getCountryName());
 	}
 
 }
