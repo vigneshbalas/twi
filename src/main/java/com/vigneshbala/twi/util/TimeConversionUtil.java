@@ -10,11 +10,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.vigneshbala.twi.model.CountryRecord;
 import com.vigneshbala.twi.model.ParserResult;
@@ -31,7 +30,7 @@ public class TimeConversionUtil {
 	private static final String ESCAPED_DOT = "\\.";
 	private static final String COLON = ":";
 
-	private static Logger log = LoggerFactory.getLogger(TimeConversionUtil.class);
+	private final static Logger LOGGER = Logger.getLogger(TimeConversionUtil.class.getName());
 
 	/**
 	 * Convert the date time based on Natural Language input
@@ -108,7 +107,7 @@ public class TimeConversionUtil {
 	}
 
 	private static ZoneId getTimeZoneForOffset(String offset) throws Exception {
-		log.debug("Processing Offset: " + offset);
+		LOGGER.fine("Processing Offset: " + offset);
 		int minutes = 0;
 		int hour = 0;
 		int offsetPlusOrMinus = extractOffsetPlusorMinus(offset);
@@ -133,7 +132,7 @@ public class TimeConversionUtil {
 			hour = Integer.parseInt(offset) * offsetPlusOrMinus;
 		}
 		ZoneId dateTimeZone = ZoneId.ofOffset("UTC", ZoneOffset.ofHoursMinutes(hour, minutes));
-		log.debug("Time Zone for offset:" + dateTimeZone.toString());
+		LOGGER.fine("Time Zone for offset:" + dateTimeZone.toString());
 		return dateTimeZone;
 	}
 
@@ -158,7 +157,7 @@ public class TimeConversionUtil {
 			for (ZoneId zone : availableTimeZones) {
 				if (matchesTZCodeOrName(timeZone, zone)) {
 					StringBuilder sb = new StringBuilder();
-					log.debug("Time Zone Processing::" + timeZone);
+					LOGGER.fine("Time Zone Processing::" + timeZone);
 					sb.append(timeZone);
 					sb.append(" ");
 					sb.append(COLON);

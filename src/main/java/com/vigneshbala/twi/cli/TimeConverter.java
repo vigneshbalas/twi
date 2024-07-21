@@ -1,13 +1,8 @@
 package com.vigneshbala.twi.cli;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
 import java.util.concurrent.Callable;
 
-import org.slf4j.bridge.SLF4JBridgeHandler;
-
-import com.vigneshbala.twi.util.ReferenceDataUtil;
 import com.vigneshbala.twi.util.TimeConversionUtil;
 
 import picocli.CommandLine;
@@ -20,28 +15,13 @@ import picocli.CommandLine.Parameters;
  * 
  * This code is licensed under MIT license (see LICENSE for details)
  */
-@Command(name = "twi", mixinStandardHelpOptions = true, version = "twi 1.0.0", description = "Natural language date and time processor and converter")
+@Command(name = "twi", mixinStandardHelpOptions = true, version = "twi 1.0", description = "Prints the converted date & time to STDOUT.")
 public class TimeConverter implements Callable<Integer> {
-	static {
-		try {
-			SLF4JBridgeHandler.removeHandlersForRootLogger();
-			SLF4JBridgeHandler.install();
-
-			ReferenceDataUtil.loadCountryData();
-			System.out.println("Reference Data load Complete...");
-		} catch (IOException | URISyntaxException e) {
-			e.printStackTrace();
-			// exit if reference data could not be loaded
-			System.exit(0);
-		}
-
-	}
-	private static final String DATE_TIME_FORMAT = "dd-MMM-yyyy hh:mm:ss a Z";
-	@Parameters(index = "0", description = "Natural language input of the time conversion")
+	@Parameters(index = "0", description = "Date Time in Natural Language")
 	private String input;
 
 	@Option(names = { "-f", "--format" }, description = "Date/Time Format(e.g. dd-MM-yyyy/dd-MM-yyyy HH:mm:ss)")
-	private String format = DATE_TIME_FORMAT;
+	private String format = "dd/MM/yyyy HH:mm:ss a";
 
 	@Option(names = { "-z",
 			"--timezone" }, description = "Timezone short code or id (e.g. IST or Asia/Kolkata. repeat for passing multiple values)")
@@ -54,7 +34,6 @@ public class TimeConverter implements Callable<Integer> {
 	@Override
 	public Integer call() throws Exception {
 		Integer exitCode = 0;
-		System.out.println(input);
 		try {
 			System.out.println(
 					TimeConversionUtil.convertDateTime(input, format, ZonedDateTime.now(), zones, null, offsets));
@@ -67,6 +46,7 @@ public class TimeConverter implements Callable<Integer> {
 	}
 
 	public static void main(String... args) {
-		new CommandLine(new TimeConverter()).execute(args);
+		int exitCode = new CommandLine(new TimeConverter()).execute(args);
+		System.exit(exitCode);
 	}
 }

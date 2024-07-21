@@ -8,14 +8,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.vigneshbala.twi.model.CountryRecord;
 import com.vigneshbala.twi.model.DateTimeComponent;
@@ -33,7 +32,7 @@ import com.vigneshbala.twi.util.ReferenceDataUtil;
  */
 public class DateTimeNLPParser {
 
-	private static Logger log = LoggerFactory.getLogger(DateTimeNLPParser.class);
+	private final static Logger LOGGER = Logger.getLogger(DateTimeNLPParser.class.getName());
 
 	// Literal constants
 	private static final String HRS = "hrs";
@@ -141,7 +140,7 @@ public class DateTimeNLPParser {
 			result.setToDateTime(this.dtmComponent.getDateTime());
 
 		} catch (Exception e) {
-			log.error(e.getMessage());
+			LOGGER.severe(e.getMessage());
 			throw e;
 		}
 
@@ -367,7 +366,7 @@ public class DateTimeNLPParser {
 		}
 		input = stripTimeZoneSpecifiers(input);
 		input = stripAccentsAndSpecialCharacters(input);
-		log.debug("Cleaned Input string ==>" + input);
+		LOGGER.fine("Cleaned Input string ==>" + input);
 		return input;
 	}
 

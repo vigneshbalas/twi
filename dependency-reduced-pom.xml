@@ -12,18 +12,37 @@
     <plugins>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
+        <version>3.6.0</version>
         <executions>
           <execution>
+            <phase>package</phase>
             <goals>
               <goal>shade</goal>
             </goals>
             <configuration>
-              <shadedArtifactAttached>true</shadedArtifactAttached>
               <transformers>
                 <transformer>
                   <mainClass>com.vigneshbala.twi.cli.TimeConverter</mainClass>
                 </transformer>
               </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.7.1</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <appendAssemblyId>false</appendAssemblyId>
+              <descriptors>
+                <descriptor>src/main/assembly/zip.xml</descriptor>
+              </descriptors>
             </configuration>
           </execution>
         </executions>
@@ -38,6 +57,10 @@
       <scope>test</scope>
       <exclusions>
         <exclusion>
+          <artifactId>slf4j-api</artifactId>
+          <groupId>org.slf4j</groupId>
+        </exclusion>
+        <exclusion>
           <artifactId>jcommander</artifactId>
           <groupId>com.beust</groupId>
         </exclusion>
@@ -50,11 +73,13 @@
   </dependencies>
   <properties>
     <info.picocli.version>4.7.6</info.picocli.version>
+    <maven.compiler.source>9</maven.compiler.source>
     <org.testng.testng.version>7.10.2</org.testng.testng.version>
     <ch.qos.logback.logback-classic.version>1.5.6</ch.qos.logback.logback-classic.version>
+    <maven.compiler.target>9</maven.compiler.target>
     <joda-time.joda-time.version>2.12.7</joda-time.joda-time.version>
-    <com.zoho.hawking.version>0.1.8</com.zoho.hawking.version>
+    <org.apache.commons.commons-lang3.version>3.14.0</org.apache.commons.commons-lang3.version>
     <org.slf4j.jul-to-slf4j.version>2.1.0-alpha1</org.slf4j.jul-to-slf4j.version>
-    <com.github.cliftonlabs.json-simple.version>4.0.1</com.github.cliftonlabs.json-simple.version>
+    <org.json.json.version>20240303</org.json.json.version>
   </properties>
 </project>

@@ -21,6 +21,7 @@
 		<joda-time.joda-time.version>2.12.7</joda-time.joda-time.version>
 		<org.testng.testng.version>7.10.2</org.testng.testng.version>
 	</properties>
+
 	<dependencies>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
@@ -35,17 +36,7 @@
 			<version>${info.picocli.version}</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.slf4j/jul-to-slf4j -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jul-to-slf4j</artifactId>
-			<version>${org.slf4j.jul-to-slf4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>${ch.qos.logback.logback-classic.version}</version>
-		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/org.json/json -->
 		<dependency>
 			<groupId>org.json</groupId>
@@ -66,70 +57,41 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.4.2</version>
-				<configuration>
-					<outputDirectory>target/jmods</outputDirectory>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.7.1</version>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.6.0</version>
 				<executions>
 					<execution>
-						<id>copy-dependencies</id>
 						<phase>package</phase>
 						<goals>
-							<goal>copy-dependencies</goal>
+							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<includeScope>runtime</includeScope>
-							<outputDirectory>target/jmods</outputDirectory>
+							<transformers>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>
+										com.vigneshbala.twi.cli.TimeConverter</mainClass>
+								</transformer>
+							</transformers>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.panteleyev</groupId>
-				<artifactId>jpackage-maven-plugin</artifactId>
-				<version>1.6.4</version>
-
-				<configuration>
-					<name>twi</name>
-					<appVersion>0.1</appVersion>
-					<vendor>com.vigneshbala</vendor>
-					<module>twi/com.vigneshbala.twi.cli.TimeConverter</module>
-					<runtimeImage>${java.home}</runtimeImage>
-					<modulePaths>
-						<modulePath>target/jmods</modulePath>
-					</modulePaths>
-					<destination>target/dist</destination>
-					<javaOptions>
-						<option>--enable-preview</option>
-						<option>-Dfile.encoding=UTF-8</option>
-					</javaOptions>
-				</configuration>
-
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.7.1</version>
 				<executions>
 					<execution>
-						<id>mac</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
 						<configuration>
-							<icon>icons/icons.icns</icon>
-						</configuration>
-					</execution>
-					<execution>
-						<id>win</id>
-						<configuration>
-							<icon>icons/icon.ico</icon>
-							<winMenu>true</winMenu>
-						</configuration>
-					</execution>
-					<execution>
-						<id>linux</id>
-						<configuration>
-							<type>APP_IMAGE</type>
-							<icon>icons/icon.png</icon>
+							<appendAssemblyId>false</appendAssemblyId>
+							<descriptors>
+								<descriptor>src/main/assembly/zip.xml</descriptor>
+							</descriptors>
 						</configuration>
 					</execution>
 				</executions>
