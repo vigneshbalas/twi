@@ -4,7 +4,7 @@
   <groupId>com.vigneshbala</groupId>
   <artifactId>twi</artifactId>
   <name>twi</name>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0</version>
   <description>A Command Line utility to quickly convert the natural language
 		time from one zone to another. The name twi is Yoda speak for Time What
 		is?</description>
