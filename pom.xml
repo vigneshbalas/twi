@@ -22,12 +22,6 @@
 		<org.testng.testng.version>7.10.2</org.testng.testng.version>
 	</properties>
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/joda-time/joda-time -->
-		<dependency>
-			<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
-			<version>${joda-time.joda-time.version}</version>
-		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -77,6 +71,23 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<includeScope>runtime</includeScope>
+							<outputDirectory>target/jmods</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.panteleyev</groupId>
 				<artifactId>jpackage-maven-plugin</artifactId>
 				<version>1.6.4</version>
@@ -84,9 +95,9 @@
 				<!-- Common part of configuration -->
 				<configuration>
 					<name>twi</name>
-					<appVersion>${project.version}</appVersion>
+					<appVersion>0.1</appVersion>
 					<vendor>com.vigneshbala</vendor>
-					<module>twi</module>
+					<module>twi/com.vigneshbala.twi.cli.TimeConverter</module>
 					<modulePaths>
 						<modulePath>target/jmods</modulePath>
 					</modulePaths>

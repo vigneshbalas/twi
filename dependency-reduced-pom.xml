@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.vigneshbala</groupId>
+  <artifactId>twi</artifactId>
+  <name>twi</name>
+  <version>0.0.1-SNAPSHOT</version>
+  <description>A Command Line utility to quickly convert the natural language
+		time from one zone to another. The name twi is Yoda speak for Time What
+		is?</description>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <transformers>
+                <transformer>
+                  <mainClass>com.vigneshbala.twi.cli.TimeConverter</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>7.10.2</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>jcommander</artifactId>
+          <groupId>com.beust</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jquery</artifactId>
+          <groupId>org.webjars</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
+  <properties>
+    <info.picocli.version>4.7.6</info.picocli.version>
+    <org.testng.testng.version>7.10.2</org.testng.testng.version>
+    <ch.qos.logback.logback-classic.version>1.5.6</ch.qos.logback.logback-classic.version>
+    <joda-time.joda-time.version>2.12.7</joda-time.joda-time.version>
+    <com.zoho.hawking.version>0.1.8</com.zoho.hawking.version>
+    <org.slf4j.jul-to-slf4j.version>2.1.0-alpha1</org.slf4j.jul-to-slf4j.version>
+    <com.github.cliftonlabs.json-simple.version>4.0.1</com.github.cliftonlabs.json-simple.version>
+  </properties>
+</project>

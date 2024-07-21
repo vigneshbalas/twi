@@ -1,15 +1,18 @@
 package com.vigneshbala.twi.util;
 
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeUtils;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +42,9 @@ public class TimeConversionUtil {
 	 * @return converted date time in the format specified
 	 * @throws Exception
 	 */
-	public static String convertDateTime(String input, String format, DateTime dateTime, String[] timeZones,
+	public static String convertDateTime(String input, String format, ZonedDateTime dateTime, String[] timeZones,
 			String[] countries, String[] offsets) throws Exception {
-		String result=null;
+		String result = null;
 		StringBuilder sb = new StringBuilder();
 		DateTimeNLPParser parser = new DateTimeNLPParser();
 		ParserResult output = parser.parse(input, dateTime, format);
@@ -57,10 +60,10 @@ public class TimeConversionUtil {
 			sb.append(convertCountries(format, countries, output));
 
 		}
-		if(timeZones==null && offsets==null &&  countries==null) {
-			result=output.getPrettyPrintedResult();
-		}else {
-			result=sb.toString();
+		if (timeZones == null && offsets == null && countries == null) {
+			result = output.getPrettyPrintedResult();
+		} else {
+			result = sb.toString();
 		}
 
 		return result;
@@ -74,10 +77,11 @@ public class TimeConversionUtil {
 					result.append(entry.getValue().getAlpha2Code());
 					result.append(COLON);
 					result.append("\n");
-					for (DateTimeZone zone : entry.getValue().getTimeZones()) {
+					for (ZoneId zone : entry.getValue().getTimeZones()) {
 						result.append(zone);
 						result.append(COLON);
-						result.append(parserResult.getToDateTime().toDateTime(zone).toString(format));
+						result.append(parserResult.getToDateTime().withZoneSameInstant(zone)
+								.format(DateTimeFormatter.ofPattern(format)));
 						result.append("\n");
 					}
 
@@ -95,14 +99,15 @@ public class TimeConversionUtil {
 			sb.append(offset);
 			sb.append(" ");
 			sb.append(COLON);
-			sb.append(parserResult.getToDateTime().toDateTime(DateTimeZone.UTC).toDateTime(getTimeZoneForOffset(offset))
-					.toString(format));
+			sb.append(parserResult.getToDateTime().withZoneSameInstant(ZoneId.of("UTC"))
+					.withZoneSameInstant(getTimeZoneForOffset(offset)).format(DateTimeFormatter.ofPattern(format)));
+
 			result.add(sb.toString());
 		}
 		return result;
 	}
 
-	private static DateTimeZone getTimeZoneForOffset(String offset) throws Exception {
+	private static ZoneId getTimeZoneForOffset(String offset) throws Exception {
 		log.debug("Processing Offset: " + offset);
 		int minutes = 0;
 		int hour = 0;
@@ -127,7 +132,7 @@ public class TimeConversionUtil {
 		} else {
 			hour = Integer.parseInt(offset) * offsetPlusOrMinus;
 		}
-		DateTimeZone dateTimeZone = DateTimeZone.forOffsetHoursMinutes(hour, minutes);
+		ZoneId dateTimeZone = ZoneId.ofOffset("UTC", ZoneOffset.ofHoursMinutes(hour, minutes));
 		log.debug("Time Zone for offset:" + dateTimeZone.toString());
 		return dateTimeZone;
 	}
@@ -147,10 +152,10 @@ public class TimeConversionUtil {
 
 	private static Set<String> convertTimeZones(String format, String[] timeZones, ParserResult parserResult) {
 		Set<String> result = new HashSet<>();
-		List<DateTimeZone> availableTimeZones = DateTimeZone.getAvailableIDs().stream().map(DateTimeZone::forID)
+		List<ZoneId> availableTimeZones = ZoneId.getAvailableZoneIds().stream().map(ZoneId::of)
 				.collect(Collectors.toList());
 		for (String timeZone : timeZones) {
-			for (DateTimeZone zone : availableTimeZones) {
+			for (ZoneId zone : availableTimeZones) {
 				if (matchesTZCodeOrName(timeZone, zone)) {
 					StringBuilder sb = new StringBuilder();
 					log.debug("Time Zone Processing::" + timeZone);
@@ -158,7 +163,8 @@ public class TimeConversionUtil {
 					sb.append(" ");
 					sb.append(COLON);
 					sb.append(" ");
-					sb.append(parserResult.getToDateTime().toDateTime(zone).toString(format));
+					sb.append(parserResult.getToDateTime().withZoneSameInstant(zone)
+							.format(DateTimeFormatter.ofPattern(format)));
 					result.add(sb.toString());
 				}
 			}
@@ -166,10 +172,10 @@ public class TimeConversionUtil {
 		return result;
 	}
 
-	private static boolean matchesTZCodeOrName(String tzString, DateTimeZone zone) {
-		return tzString.contains(zone.getShortName(DateTimeUtils.currentTimeMillis()))
-				|| tzString.contains(zone.getName(DateTimeUtils.currentTimeMillis()))
-				|| tzString.contains(zone.getID());
+	private static boolean matchesTZCodeOrName(String tzString, ZoneId zone) {
+		return tzString.contains(zone.getDisplayName(TextStyle.SHORT_STANDALONE, Locale.getDefault()))
+				|| tzString.contains(zone.getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault()))
+				|| tzString.contains(zone.getId());
 	}
 
 	private static boolean matchesCountryCodeOrName(String countryString, CountryRecord country) {

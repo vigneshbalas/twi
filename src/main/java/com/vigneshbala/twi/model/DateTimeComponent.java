@@ -1,12 +1,11 @@
 package com.vigneshbala.twi.model;
 
+import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Optional;
-
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import com.vigneshbala.twi.nlp.DateTimeUnits;
 
@@ -16,7 +15,7 @@ public class DateTimeComponent {
 	int yearDelta;
 	int hourDelta;
 	int minuteDelta;
-	DateTime baseTime;
+	ZonedDateTime baseTime;
 	boolean isPast;
 	boolean isDateTimePresent;
 	int countDeltas;
@@ -30,14 +29,14 @@ public class DateTimeComponent {
 	private static final int TOTAL_WEEKDAYS = 7;
 	private static final int TOTAL_MONTHS = 12;
 
-	public DateTimeComponent(DateTime baseTime, boolean isPast) {
+	public DateTimeComponent(ZonedDateTime baseTime, boolean isPast) {
 		this.baseTime = baseTime;
 		this.isPast = isPast;
-		this.toDate = baseTime.dayOfMonth().get();
-		this.toMonth = baseTime.monthOfYear().get();
+		this.toDate = baseTime.getDayOfMonth();
+		this.toMonth = baseTime.getMonthValue();
 		this.toYear = baseTime.getYear();
-		this.toHour = baseTime.getHourOfDay();
-		this.toMin = baseTime.getMinuteOfHour();
+		this.toHour = baseTime.getHour();
+		this.toMin = baseTime.getMinute();
 
 	}
 
@@ -103,7 +102,7 @@ public class DateTimeComponent {
 
 	public void setDayDelta(String day) {
 
-		int deltaDays = DateTimeUnits.getInstance().getWeekDay(day) - baseTime.getDayOfWeek();
+		int deltaDays = DateTimeUnits.getInstance().getWeekDay(day) - baseTime.getDayOfWeek().getValue();
 		if (!isPast) {
 			deltaDays = deltaDays >= 0 ? deltaDays : (TOTAL_WEEKDAYS + deltaDays);
 		}
@@ -138,7 +137,7 @@ public class DateTimeComponent {
 	}
 
 	public void setMonthDelta(String month) {
-		int deltaMonths = DateTimeUnits.getInstance().getMonth(month) - baseTime.getMonthOfYear();
+		int deltaMonths = DateTimeUnits.getInstance().getMonth(month) - baseTime.getMonthValue();
 		if (!isPast) {
 			deltaMonths = deltaMonths >= 0 ? deltaMonths : (TOTAL_MONTHS + deltaMonths + 1);
 		}
@@ -185,28 +184,28 @@ public class DateTimeComponent {
 
 	}
 
-	public DateTime getDateTime() {
-		DateTime result = null;
+	public ZonedDateTime getDateTime() {
+		ZonedDateTime result = null;
 		if (this.dayDelta != 0) {
 			this.toDate = this.baseTime.plusDays(dayDelta).getDayOfMonth();
 		}
 		if (this.monthDelta != 0) {
-			this.toMonth = this.baseTime.plusMonths(monthDelta).getMonthOfYear();
+			this.toMonth = this.baseTime.plusMonths(monthDelta).getMonthValue();
 		}
 		if (this.yearDelta != 0) {
 			this.toYear = this.baseTime.plusYears(yearDelta).getYear();
 		}
 		if (this.hourDelta != 0) {
-			this.toHour = this.baseTime.plusHours(hourDelta).getHourOfDay();
+			this.toHour = this.baseTime.plusHours(hourDelta).getHour();
 
 		}
 		if (this.minuteDelta != 0) {
-			this.toMin = this.baseTime.plusMinutes(minuteDelta).getMinuteOfHour();
+			this.toMin = this.baseTime.plusMinutes(minuteDelta).getMinute();
 		}
 
-		DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
-		result = formatter.parseDateTime(toDate + "/" + toMonth + "/" + toYear + " " + toHour + ":" + toMin + ":00");
-		if (result.getMonthOfYear() < baseTime.getMonthOfYear()) {
+		result = ZonedDateTime.of(LocalDateTime.of(toYear, toMonth, toDate, toHour, toMin), ZoneId.systemDefault());
+
+		if (result.getMonthValue() < baseTime.getMonthValue()) {
 			result = result.plusYears(1);
 			if (result.getDayOfMonth() < baseTime.getDayOfMonth()) {
 				result = result.plusMonths(1);

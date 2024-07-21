@@ -1,9 +1,9 @@
 package com.vigneshbala.twi.cli;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.concurrent.Callable;
 
-import org.joda.time.DateTime;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.github.cliftonlabs.json_simple.JsonException;
@@ -55,7 +55,8 @@ public class TimeConverter implements Callable<Integer> {
 	public Integer call() throws Exception {
 		Integer exitCode = 0;
 		try {
-			System.out.println(TimeConversionUtil.convertDateTime(input, format, new DateTime(), zones, null, offsets));
+			System.out.println(
+					TimeConversionUtil.convertDateTime(input, format, ZonedDateTime.now(), zones, null, offsets));
 		} catch (Exception e) {
 			e.printStackTrace();
 			exitCode = 500;
@@ -65,6 +66,6 @@ public class TimeConverter implements Callable<Integer> {
 	}
 
 	public static void main(String... args) {
-		int exitCode = new CommandLine(new TimeConverter()).execute(args);
+		new CommandLine(new TimeConverter()).execute(args);
 	}
 }

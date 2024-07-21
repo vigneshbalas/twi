@@ -1,10 +1,11 @@
 package com.vigneshbala.twi.util;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -22,16 +23,17 @@ public class TimeConversionUtilTest {
 	private static final String DD_MM_YYYY = "dd-MM-yyyy";
 
 	// Test Dates injected as current dates for repeatable tests
-	DateTime JUL_17_2024 = null;
+	ZonedDateTime JUL_17_2024 = null;
 
-	DateTime Feb_01_2024 = null;
+	ZonedDateTime Feb_01_2024 = null;
 
 	@BeforeClass
 	public void loadReferenceData() {
 		try {
-			DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
-			JUL_17_2024 = formatter.parseDateTime("17/07/2024 00:00:00");
-			Feb_01_2024 = formatter.parseDateTime("01/02/2024 00:00:00");
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+			JUL_17_2024 = LocalDate.parse("17/07/2024 00:00:00", formatter).atStartOfDay(ZoneId.systemDefault());
+
+			Feb_01_2024 = LocalDate.parse("01/02/2024 00:00:00", formatter).atStartOfDay(ZoneId.systemDefault());
 			ReferenceDataUtil.loadCountryData();
 		} catch (IOException | JsonException e) {
 
@@ -237,7 +239,7 @@ public class TimeConversionUtilTest {
 			Assert.assertEquals(
 					TimeConversionUtil.convertDateTime("+2.5h", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024, null, null, null),
 					"17-07-2024 02:30:00 AM");
-			
+
 			Assert.assertEquals(
 					TimeConversionUtil.convertDateTime("+2hours", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024, null, null, null),
 					"17-07-2024 02:00:00 AM");

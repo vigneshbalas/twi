@@ -1,9 +1,9 @@
 package com.vigneshbala.twi.model;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 /**
  * (c) 2024 Vignesh Balasubramanian
@@ -11,12 +11,12 @@ import org.joda.time.DateTimeZone;
  * This code is licensed under MIT license (see LICENSE for details)
  */
 public class ParserResult {
-	List<DateTimeZone> timezones;
+	List<ZoneId> timezones;
 	String outputformat;
 	List<CountryRecord> countries;
 	List<String> offsets;
-	DateTime toDateTime = null;
-	
+	ZonedDateTime toDateTime = null;
+
 	boolean isTimezonePresent;
 	boolean isDatePresent;
 	boolean isTimePresent;
@@ -24,7 +24,7 @@ public class ParserResult {
 	public ParserResult(String outputformat) {
 		this.outputformat = outputformat;
 	}
-	
+
 	public boolean isTimezonePresent() {
 		return isTimezonePresent;
 	}
@@ -49,7 +49,7 @@ public class ParserResult {
 		this.isTimePresent = isTimePresent;
 	}
 
-	public List<DateTimeZone> getTimezones() {
+	public List<ZoneId> getTimezones() {
 		return timezones;
 	}
 
@@ -61,11 +61,11 @@ public class ParserResult {
 		return offsets;
 	}
 
-	public DateTime getToDateTime() {
+	public ZonedDateTime getToDateTime() {
 		return toDateTime;
 	}
 
-	public void setToDateTime(DateTime toDateTime) {
+	public void setToDateTime(ZonedDateTime toDateTime) {
 		this.toDateTime = toDateTime;
 	}
 
@@ -75,7 +75,7 @@ public class ParserResult {
 
 	public String getPrettyPrintedResult() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(toDateTime.toString(outputformat));
+		sb.append(DateTimeFormatter.ofPattern(outputformat).format(toDateTime));
 		return sb.toString();
 
 	}

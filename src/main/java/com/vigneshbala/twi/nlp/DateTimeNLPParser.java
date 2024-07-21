@@ -1,9 +1,11 @@
 package com.vigneshbala.twi.nlp;
 
-import java.time.Clock;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.TextStyle;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -12,9 +14,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeUtils;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,15 +71,15 @@ public class DateTimeNLPParser {
 	private static final String YEAR_REGEX = "\\d{4}";
 
 	// Time Zones
-	private static final List<DateTimeZone> availableTimeZones = DateTimeZone.getAvailableIDs().stream()
-			.map(DateTimeZone::forID).collect(Collectors.toList());
+	private static final List<ZoneId> availableTimeZones = ZoneId.getAvailableZoneIds().stream().map(ZoneId::of)
+			.collect(Collectors.toList());
 
 	// Exception messages
 	private static final String CONTAIN_MORE_DATE_TIME = "String contain more date/time.. currently only one is supported..";
 	private static final String DOES_NOT_CONTAIN_ANY_DATES_OR_TIME = "String does not contain any dates or time..";
 
 	private static CountryRecord countryRecord = null;
-	private static DateTimeZone timeZone = null;
+	private static ZoneId timeZone = null;
 
 	private DateTimeComponent dtmComponent = null;
 	private String input = null;
@@ -94,11 +93,11 @@ public class DateTimeNLPParser {
 	 * @return ParserResult object
 	 * @throws Exception will be thrown on error conditions
 	 */
-	public ParserResult parse(String input, DateTime dateTime, String format) throws Exception {
+	public ParserResult parse(String input, ZonedDateTime dateTime, String format) throws Exception {
 		ParserResult result = new ParserResult(format);
-		DateTime baseTime = null;
+		ZonedDateTime baseTime = null;
 		if (dateTime == null) {
-			baseTime = new DateTime();
+			baseTime = ZonedDateTime.now();
 		} else {
 			baseTime = dateTime;
 		}
@@ -381,14 +380,14 @@ public class DateTimeNLPParser {
 	 * @throws Exception Exception thrown when string contains more than one time
 	 *                   zone
 	 */
-	private static DateTimeZone extractTimeZone(String input) throws Exception {
+	private static ZoneId extractTimeZone(String input) throws Exception {
 
 		List<String> tokens = Arrays.asList(StringUtils.splitByWholeSeparator(input, StringUtils.SPACE));
-		TreeMap<String, DateTimeZone> timeZones = new TreeMap<String, DateTimeZone>();
-		for (DateTimeZone zone : availableTimeZones) {
+		TreeMap<String, ZoneId> timeZones = new TreeMap<String, ZoneId>();
+		for (ZoneId zone : availableTimeZones) {
 
 			if (tokenMatchesTZCodeOrName(tokens, zone)) {
-				timeZones.put(zone.getShortName(DateTimeUtils.currentTimeMillis()), zone);
+				timeZones.put(zone.getDisplayName(TextStyle.SHORT_STANDALONE, Locale.ENGLISH), zone);
 			}
 		}
 		if (timeZones.size() > 1) {
@@ -460,9 +459,9 @@ public class DateTimeNLPParser {
 
 	private static String stripTimeZone(String input) throws Exception {
 
-		input = RegExUtils.removePattern(input, timeZone.getShortName(DateTimeUtils.currentTimeMillis()));
-		input = RegExUtils.removePattern(input, timeZone.getName(DateTimeUtils.currentTimeMillis()));
-		input = RegExUtils.removePattern(input, timeZone.getID());
+		input = RegExUtils.removePattern(input, timeZone.getDisplayName(TextStyle.SHORT_STANDALONE, Locale.ENGLISH));
+		input = RegExUtils.removePattern(input, timeZone.getDisplayName(TextStyle.FULL_STANDALONE, Locale.ENGLISH));
+		input = RegExUtils.removePattern(input, timeZone.getId());
 		return input;
 	}
 
@@ -481,9 +480,10 @@ public class DateTimeNLPParser {
 		return input;
 	}
 
-	private static boolean tokenMatchesTZCodeOrName(List<String> tokens, DateTimeZone zone) {
-		return tokens.contains(zone.getShortName(DateTimeUtils.currentTimeMillis()))
-				|| tokens.contains(zone.getName(DateTimeUtils.currentTimeMillis())) || tokens.contains(zone.getID());
+	private static boolean tokenMatchesTZCodeOrName(List<String> tokens, ZoneId zone) {
+		return tokens.contains(zone.getDisplayName(TextStyle.SHORT_STANDALONE, Locale.ENGLISH))
+				|| tokens.contains(zone.getDisplayName(TextStyle.FULL_STANDALONE, Locale.ENGLISH))
+				|| tokens.contains(zone.getId());
 	}
 
 	private boolean hasMatch(String regex) {

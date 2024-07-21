@@ -1,9 +1,10 @@
 package com.vigneshbala.twi.model;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.joda.time.DateTimeZone;
+
 
 /**
  * (c) 2024 Vignesh Balasubramanian 
@@ -14,13 +15,13 @@ public class CountryRecord {
 	String countryName;
 	String alpha2Code;
 	String alpha3Code;
-	List<DateTimeZone> timeZones = new ArrayList<>();
+	List<ZoneId> timeZones = new ArrayList<>();
 
-	public void addTimeZone(DateTimeZone timeZone) {
+	public void addTimeZone(ZoneId timeZone) {
 		timeZones.add(timeZone);
 	}
 
-	public List<DateTimeZone> getTimeZones() {
+	public List<ZoneId> getTimeZones() {
 		return timeZones;
 	}
 

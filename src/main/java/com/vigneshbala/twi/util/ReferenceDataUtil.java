@@ -3,12 +3,11 @@ package com.vigneshbala.twi.util;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.joda.time.DateTimeZone;
 
 import com.github.cliftonlabs.json_simple.JsonArray;
 import com.github.cliftonlabs.json_simple.JsonException;
@@ -79,7 +78,7 @@ public class ReferenceDataUtil {
 				CountryRecord countryRecord = getOrCreate(alpha2Code);
 				JsonArray timezones = (JsonArray) ((JsonObject) jsonRecord).get("TimeZones");
 				for (Object timezone : timezones) {
-					countryRecord.addTimeZone(DateTimeZone.forID(timezone.toString()));
+					countryRecord.addTimeZone(ZoneId.of(timezone.toString()));
 				}
 				countryMap.put(alpha2Code, countryRecord);
 			}
