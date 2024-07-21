@@ -67,6 +67,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.4.2</version>
 				<configuration>
 					<outputDirectory>target/jmods</outputDirectory>
 				</configuration>
@@ -74,6 +75,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.7.1</version>
 				<executions>
 					<execution>
 						<id>copy-dependencies</id>
@@ -93,12 +95,12 @@
 				<artifactId>jpackage-maven-plugin</artifactId>
 				<version>1.6.4</version>
 
-				<!-- Common part of configuration -->
 				<configuration>
 					<name>twi</name>
 					<appVersion>0.1</appVersion>
 					<vendor>com.vigneshbala</vendor>
 					<module>twi/com.vigneshbala.twi.cli.TimeConverter</module>
+					<runtimeImage>${java.home}</runtimeImage>
 					<modulePaths>
 						<modulePath>target/jmods</modulePath>
 					</modulePaths>
@@ -108,6 +110,7 @@
 						<option>-Dfile.encoding=UTF-8</option>
 					</javaOptions>
 				</configuration>
+
 				<executions>
 					<execution>
 						<id>mac</id>
