@@ -112,7 +112,7 @@ Below table gives a overview of some of the above test outcomes
 
 ## Windows
 
-> Note: Requires Java 9 or above
+> Note: Requires Java 8 or above
 
 1. Download twi-1.0-windows.zip from latest Release
 
@@ -126,7 +126,8 @@ Below table gives a overview of some of the above test outcomes
 
 6. After success message close the command prompt
 
-  
+ ## Other Operating Systems
+The jar file is compatible with most of the operating systems as its written using java. Have to create install scripts for others though. Feel free to download the zip file and modify the ".bat" to shell script.
 
 # Usage
 
@@ -155,7 +156,7 @@ where,
 
 The tool is developed in Java so should work in most platforms. I tested in Windows 11 though.
 
-I developed using JDK 21, but it should work in JDKs 9 or above
+I developed using JDK 21, but it should work in JDKs 8 or above
 
 # What twi is
 
