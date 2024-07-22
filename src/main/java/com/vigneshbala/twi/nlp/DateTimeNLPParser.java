@@ -114,11 +114,11 @@ public class DateTimeNLPParser {
 
 			this.dtmComponent = new DateTimeComponent(baseTime, past);
 
+			parseYear();
+			
 			parseRelative();
 
 			parseHourMinuteSeconds();
-
-			parseYear();
 
 			parseMonth();
 
@@ -458,8 +458,8 @@ public class DateTimeNLPParser {
 
 	private static String stripTimeZone(String input) throws Exception {
 
-		input = RegExUtils.removePattern(input, timeZone.getDisplayName(TextStyle.SHORT_STANDALONE, Locale.ENGLISH));
-		input = RegExUtils.removePattern(input, timeZone.getDisplayName(TextStyle.FULL_STANDALONE, Locale.ENGLISH));
+		input = RegExUtils.removePattern(input, timeZone.getDisplayName(TextStyle.SHORT, Locale.ENGLISH));
+		input = RegExUtils.removePattern(input, timeZone.getDisplayName(TextStyle.FULL, Locale.ENGLISH));
 		input = RegExUtils.removePattern(input, timeZone.getId());
 		return input;
 	}
@@ -480,8 +480,8 @@ public class DateTimeNLPParser {
 	}
 
 	private static boolean tokenMatchesTZCodeOrName(List<String> tokens, ZoneId zone) {
-		return tokens.contains(zone.getDisplayName(TextStyle.SHORT_STANDALONE, Locale.ENGLISH))
-				|| tokens.contains(zone.getDisplayName(TextStyle.FULL_STANDALONE, Locale.ENGLISH))
+		return tokens.contains(zone.getDisplayName(TextStyle.SHORT, Locale.ENGLISH))
+				|| tokens.contains(zone.getDisplayName(TextStyle.FULL, Locale.ENGLISH))
 				|| tokens.contains(zone.getId());
 	}
 

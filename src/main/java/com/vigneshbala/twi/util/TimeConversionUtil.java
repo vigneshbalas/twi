@@ -172,8 +172,8 @@ public class TimeConversionUtil {
 	}
 
 	private static boolean matchesTZCodeOrName(String tzString, ZoneId zone) {
-		return tzString.equals(zone.getDisplayName(TextStyle.SHORT_STANDALONE, Locale.getDefault()))
-				|| tzString.equals(zone.getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault()))
+		return tzString.equals(zone.getDisplayName(TextStyle.SHORT, Locale.getDefault()))
+				|| tzString.equals(zone.getDisplayName(TextStyle.FULL, Locale.getDefault()))
 				|| tzString.equals(zone.getId());
 	}
 

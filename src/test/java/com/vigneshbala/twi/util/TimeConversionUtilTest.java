@@ -181,6 +181,30 @@ public class TimeConversionUtilTest {
 			Assert.fail();
 		}
 	}
+	@Test
+	private void testYear() {
+		try {
+			Assert.assertEquals(
+					TimeConversionUtil.convertDateTime("2025", DD_MM_YYYY, JUL_17_2024, null, null, null),
+					"17-07-2025");
+			Assert.assertEquals(
+					TimeConversionUtil.convertDateTime("August 15th 2025", DD_MM_YYYY, JUL_17_2024, null, null, null),
+					"15-08-2025");
+			Assert.assertEquals(
+					TimeConversionUtil.convertDateTime("August 15th 2024", DD_MM_YYYY, JUL_17_2024, null, null, null),
+					"15-08-2024");
+			Assert.assertEquals(
+					TimeConversionUtil.convertDateTime("August 15th 2024 3:30 PM", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024, null, null, null),
+					"15-08-2024 03:30:00 PM");
+			Assert.assertEquals(
+					TimeConversionUtil.convertDateTime("August 15th 2026 3:30 PM", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024, null, null, null),
+					"15-08-2026 03:30:00 PM");
+		} catch (Exception e) {
+			e.printStackTrace();
+			Assert.fail();
+		}
+		
+	}
 
 	@Test
 	private void testTZShortCode() {
