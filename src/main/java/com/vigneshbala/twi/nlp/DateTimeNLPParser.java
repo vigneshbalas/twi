@@ -62,7 +62,7 @@ public class DateTimeNLPParser {
 			"light", "daylight", "savings");
 
 	// Regular Expressions
-	private static final String MONTH_REGEX = "jan(?:uary)|feb(?:raury)|mar(?:ch)|apr(?:il)|may|jun(?:e)|jul(?:y)|aug(?:ust)|sep(?:tember)|oct(?:ober)|nov(?:ember)|dec(?:ember)";
+	private static final String MONTH_REGEX = "jan(?:uary)?|feb(?:raury)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?";
 	private static final String DATE_REGEX = "\\d{1,2}(st|rd|th|nd|\\s)?";
 	private static final String HOUR_MIN_REGEX = "(?<hour>\\d{1,2})\\s?(?<minute>:?\\d{1,2})?\\s?(?<suffix>hours|hrs|am|pm)?\\b";
 	private static final String RELATIVE_REGEX = "(?<relation>\\+|\\-)(?<number>\\d{1,2})(?<decimal>\\.\\d{1,2})?(?<field>days|day|d|months|month|m|hrs|h|hours|hr|min|m|mins)?";

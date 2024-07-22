@@ -199,6 +199,12 @@ public class TimeConversionUtilTest {
 			Assert.assertEquals(
 					TimeConversionUtil.convertDateTime("August 15th 2026 3:30 PM", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024, null, null, null),
 					"15-08-2026 03:30:00 PM");
+			Assert.assertEquals(
+					TimeConversionUtil.convertDateTime("Aug 15th 2026 3:30 PM", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024, null, null, null),
+					"15-08-2026 03:30:00 PM");
+			Assert.assertEquals(
+					TimeConversionUtil.convertDateTime("Apr 15th 2026 3:30 PM", DD_MM_YYYY_HH_MM_SS_A, JUL_17_2024, null, null, null),
+					"15-04-2026 03:30:00 PM");
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail();

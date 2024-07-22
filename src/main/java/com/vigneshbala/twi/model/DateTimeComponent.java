@@ -26,6 +26,8 @@ public class DateTimeComponent {
 	int toHour;
 	int toMin;
 
+	boolean adjustForPastDate = true;
+
 	private static final int TOTAL_WEEKDAYS = 7;
 	private static final int TOTAL_MONTHS = 12;
 
@@ -92,6 +94,7 @@ public class DateTimeComponent {
 
 	public void setToYear(int toYear) {
 		this.toYear = toYear;
+		this.adjustForPastDate = false;
 		this.countAbsoluteDateTimes++;
 		this.isDateTimePresent = true;
 	}
@@ -205,7 +208,7 @@ public class DateTimeComponent {
 
 		result = ZonedDateTime.of(LocalDateTime.of(toYear, toMonth, toDate, toHour, toMin), ZoneId.systemDefault());
 
-		if (result.getMonthValue() < baseTime.getMonthValue()) {
+		if (this.adjustForPastDate && result.getMonthValue() < baseTime.getMonthValue()) {
 			result = result.plusYears(1);
 			if (result.getDayOfMonth() < baseTime.getDayOfMonth()) {
 				result = result.plusMonths(1);
