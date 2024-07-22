@@ -9,14 +9,16 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Unmatched;
 
 /**
  * (c) 2024 Vignesh Balasubramanian
  * 
  * This code is licensed under MIT license (see LICENSE for details)
  */
-@Command(name = "twi", mixinStandardHelpOptions = true, version = "twi 1.0", description = "Prints the converted date & time to STDOUT.")
+@Command(name = "twi", version = "twi 1.0", description = "Prints the converted date & time to STDOUT.")
 public class TimeConverter implements Callable<Integer> {
+
 	@Parameters(index = "0", description = "Date Time in Natural Language")
 	private String input;
 
@@ -26,6 +28,9 @@ public class TimeConverter implements Callable<Integer> {
 	@Option(names = { "-z",
 			"--timezone" }, description = "Timezone short code or id (e.g. IST or Asia/Kolkata. repeat for passing multiple values)")
 	private String[] zones;
+
+	@Unmatched
+	private String[] unmatched;
 
 	@Option(names = { "-o",
 			"--offset" }, description = "Offset from UTC format: +8, +8.5,+08:00,+08:30,-8, -8.5 -08:00,-08:30. repeat for passing multiple values")
@@ -38,7 +43,6 @@ public class TimeConverter implements Callable<Integer> {
 			System.out.println(
 					TimeConversionUtil.convertDateTime(input, format, ZonedDateTime.now(), zones, null, offsets));
 		} catch (Exception e) {
-			e.printStackTrace();
 			exitCode = 500;
 			throw e;
 		}
@@ -46,7 +50,9 @@ public class TimeConverter implements Callable<Integer> {
 	}
 
 	public static void main(String... args) {
-		int exitCode = new CommandLine(new TimeConverter()).execute(args);
+		CommandLine commandLine = new CommandLine(new TimeConverter());
+		commandLine.setUnmatchedOptionsArePositionalParams(true);
+		int exitCode = commandLine.execute(args);
 		System.exit(exitCode);
 	}
 }
