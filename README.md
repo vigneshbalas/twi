@@ -21,7 +21,7 @@ Master Yoda, slowly opened his eyes, "**Time what is?** You ask".Hmm? Hmm.. I wi
 
   
 
-A simple CLI tool to be able to convert time and date, including timezone conversions. It uses natural language processing to parse time and date components from english text and convert using the awesome joda-time library.
+A simple CLI tool to be able to convert time and date, including timezone conversions. It uses natural language processing to parse time and date components from english text and convert using the awesome java.time package.
 
   
 
@@ -31,7 +31,9 @@ I created this tool because I am more comfortable with CLI and I could not find 
 
 The CLI is built using picocli library.
 
-  
+## A Quick Demo
+
+
 
 # NLP Parser
 
@@ -41,7 +43,8 @@ There are quite a number of NLP parsers available for java like **Apache OpenNLP
 
 - Some of these libraries are under a more restrictive open source license and I wanted this tool to be under MIT License.
 
-  
+  ![vscode-1721653673845](https://github.com/user-attachments/assets/768b588a-2aaf-4781-8e44-fb9f68349c88)
+
 
 For these reasons, I created a NLP parser from scratch, for date-time processing. its kept simple intentionally and only supports English as of now. Test folder contains a test class with all supported formats as of now.
 
@@ -67,7 +70,7 @@ Following are the supported input grammars:
 
   
 
-Below table gives a overview of some of the above test outcomes
+Below table gives a overview of some of the above test outcomes. Tests are available in TimeConversionUtilTest class under test folder.
 
 | #  | Current Date Time   | Current Weekday | Input String         | Output                 | Remarks                                     |
 | -- | ------------------- | --------------- | -------------------- | ---------------------- | ------------------------------------------- |
