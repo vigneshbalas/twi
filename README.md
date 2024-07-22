@@ -21,7 +21,7 @@ Master Yoda, slowly opened his eyes, "**Time what is?** You ask".Hmm? Hmm.. I wi
 
   
 
-A simple CLI tool to be able to convert time and date, including timezone conversions. It uses natural language processing to parse time and date components from english text and convert using the awesome joda-time library.
+A simple CLI tool to be able to convert time and date, including timezone conversions. It uses natural language processing to parse time and date components from english text and convert using the awesome java.time package.
 
   
 
