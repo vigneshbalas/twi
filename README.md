@@ -32,7 +32,7 @@ I created this tool because I am more comfortable with CLI and I could not find 
 The CLI is built using picocli library.
 
 ## A Quick Demo
-![vscode-1721653673845](https://github.com/user-attachments/assets/45f4af83-b5bd-4a19-ab4c-b69c169f9002)
+
 
 
 # NLP Parser
@@ -43,7 +43,8 @@ There are quite a number of NLP parsers available for java like **Apache OpenNLP
 
 - Some of these libraries are under a more restrictive open source license and I wanted this tool to be under MIT License.
 
-  
+  ![vscode-1721653673845](https://github.com/user-attachments/assets/768b588a-2aaf-4781-8e44-fb9f68349c88)
+
 
 For these reasons, I created a NLP parser from scratch, for date-time processing. its kept simple intentionally and only supports English as of now. Test folder contains a test class with all supported formats as of now.
 
