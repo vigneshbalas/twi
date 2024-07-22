@@ -23,7 +23,7 @@ public class TimeConverter implements Callable<Integer> {
 	private String input;
 
 	@Option(names = { "-f", "--format" }, description = "Date/Time Format(e.g. dd-MM-yyyy/dd-MM-yyyy HH:mm:ss)")
-	private String format = "dd/MM/yyyy HH:mm:ss a";
+	private String format = "dd/MM/yyyy hh:mm:ss a Z";
 
 	@Option(names = { "-z",
 			"--timezone" }, description = "Timezone short code or id (e.g. IST or Asia/Kolkata. repeat for passing multiple values)")
