@@ -31,7 +31,9 @@ I created this tool because I am more comfortable with CLI and I could not find 
 
 The CLI is built using picocli library.
 
-  
+## A Quick Demo
+![vscode-1721653673845](https://github.com/user-attachments/assets/45f4af83-b5bd-4a19-ab4c-b69c169f9002)
+
 
 # NLP Parser
 
@@ -67,7 +69,7 @@ Following are the supported input grammars:
 
   
 
-Below table gives a overview of some of the above test outcomes
+Below table gives a overview of some of the above test outcomes. Tests are available in TimeConversionUtilTest class under test folder.
 
 | #  | Current Date Time   | Current Weekday | Input String         | Output                 | Remarks                                     |
 | -- | ------------------- | --------------- | -------------------- | ---------------------- | ------------------------------------------- |
